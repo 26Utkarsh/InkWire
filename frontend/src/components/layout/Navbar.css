@@ -1,6 +1,6 @@
 /* =============================================================
    Navbar.css — Premium Two-Row Editorial Header
-   Clean, classic, and prestigious layout like NYT / The Hindu
+   Clean, classic, and prestigious layout like The Hindu / NYT
    ============================================================= */
 
 /* ── NAVBAR SHELL ─────────────────────────────────────────── */
@@ -23,7 +23,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 70px;
+  height: 80px; /* Generous height for prominent logo */
   padding: 0 var(--container-padding);
 }
 
@@ -42,16 +42,13 @@
   gap: var(--sp-1);
 }
 
-.navbar-edition {
+.navbar-date {
   font-family: var(--font-sans);
-  font-size: 0.65rem;
-  font-weight: 700;
-  letter-spacing: 0.15em;
+  font-size: 0.725rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
   color: var(--color-text-muted);
   text-transform: uppercase;
-  border: 1px solid var(--color-border-strong);
-  padding: 3px 8px;
-  border-radius: var(--radius-sm);
 }
 
 /* Row 2: Bottom Navigation Bar */
@@ -104,24 +101,34 @@
   border-bottom-color: var(--topic-color, var(--color-accent));
 }
 
-/* ── LOGO SIZING (Centered prominent brand) ───────────────── */
+/* ── EDITORIAL TEXT LOGO (The Hindu / NYT style) ───────────── */
 .navbar-logo {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 16px;
   text-decoration: none;
-}
-
-.navbar-logo-img {
-  height: 44px;
-  width: auto;
-  object-fit: contain;
-  filter: grayscale(1) contrast(1.2);
+  color: var(--color-text-primary);
   transition: opacity var(--transition-fast);
 }
 
-.navbar-logo:hover .navbar-logo-img {
-  opacity: 0.8;
+.navbar-logo:hover {
+  opacity: 0.85;
+}
+
+.logo-word {
+  font-family: var(--font-serif);
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: 0.06em;
+  line-height: 1;
+}
+
+.logo-crest {
+  height: 44px;
+  width: auto;
+  flex-shrink: 0;
 }
 
 /* ── RIGHT-SIDE ACTIONS ───────────────────────────────────── */
@@ -326,8 +333,18 @@
     display: none;
   }
 
-  .navbar-logo-img {
-    height: 28px;
+  .logo-word {
+    font-size: 1.625rem;
+    letter-spacing: 0.04em;
+  }
+
+  .logo-crest {
+    height: 30px;
+    width: auto;
+  }
+
+  .navbar-logo {
+    gap: 8px;
   }
 
   .navbar-bottom {

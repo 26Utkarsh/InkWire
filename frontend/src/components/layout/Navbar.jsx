@@ -44,19 +44,29 @@ const Navbar = () => {
     }
   };
 
+  // Format today's date in classic newspaper header style
+  const formattedDate = new Date().toLocaleDateString('en-US', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric'
+  });
+
   return (
     <>
       <header className="navbar" role="banner">
         {/* Row 1: Top branding bar */}
         <div className="navbar-top container">
-          {/* Left info box (visible on desktop) */}
+          {/* Left info box: Date display (visible on desktop) */}
           <div className="navbar-top-left">
-            <span className="navbar-edition">GLOBAL EDITION</span>
+            <span className="navbar-date">{formattedDate}</span>
           </div>
 
-          {/* Logo (Centered on desktop, scaled prominent) */}
+          {/* Logo (Centered on desktop, styled like The Hindu with SVG Crest) */}
           <Link to="/" className="navbar-logo" onClick={closeMobileMenu} aria-label="InkWire — Home">
-            <img src="/logo.png" alt="InkWire Logo" className="navbar-logo-img" />
+            <span className="logo-word">INK</span>
+            <img src="/crest.svg" className="logo-crest" alt="InkWire Crest" aria-hidden="true" />
+            <span className="logo-word">WIRE</span>
           </Link>
 
           {/* Right actions */}
