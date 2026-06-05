@@ -4,8 +4,8 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { format } from 'date-fns';
 import ArticleMeta from './ArticleMeta.jsx';
+import { makeImageErrorHandler } from '../../utils/imageUtils.js';
 import './ArticleCard.css';
 
 /**
@@ -14,7 +14,7 @@ import './ArticleCard.css';
  * @param {object} props.article
  */
 const ArticleCard = ({ article }) => (
-  <article className="card article-card animate-fade-in-up">
+  <article className="article-card animate-fade-in-up">
     {article.imageUrl && (
       <Link to={`/article/${article.slug}`} tabIndex="-1" aria-hidden="true">
         <div className="article-card-image-wrap">
@@ -23,6 +23,7 @@ const ArticleCard = ({ article }) => (
             alt={article.headline}
             className="article-card-image"
             loading="lazy"
+            onError={makeImageErrorHandler(article.topic, article.slug)}
           />
         </div>
       </Link>

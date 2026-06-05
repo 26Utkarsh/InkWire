@@ -1,14 +1,33 @@
-/* ArticleCard.css — Standard article card styles */
+/* =============================================================
+   ArticleCard.css — Standard article card styles
+   Clean, borderless, whitespace-driven like The Hindu
+   ============================================================= */
 
 .article-card {
   display: flex;
   flex-direction: column;
   background: var(--color-bg);
+  /* Remove the card border — whitespace creates separation instead */
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  transition: none;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: var(--sp-5);
+}
+
+/* Override global .card hover effects */
+.article-card:hover {
+  box-shadow: none;
+  transform: none;
 }
 
 .article-card-image-wrap {
   overflow: hidden;
-  aspect-ratio: 16/9;
+  border-radius: var(--radius-md);
+  aspect-ratio: 16 / 9;
+  margin-bottom: var(--sp-3);
+  background: var(--color-bg-secondary);
 }
 
 .article-card-image {
@@ -16,6 +35,7 @@
   height: 100%;
   object-fit: cover;
   transition: transform var(--transition-normal);
+  display: block;
 }
 
 .article-card:hover .article-card-image {
@@ -23,18 +43,17 @@
 }
 
 .article-card-body {
-  padding: var(--sp-5);
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: var(--sp-3);
+  gap: var(--sp-2);
 }
 
 .article-card-headline {
   font-family: var(--font-serif);
   font-size: 1.125rem;
   font-weight: 700;
-  line-height: 1.3;
+  line-height: 1.35;
   color: var(--color-text-primary);
 }
 
@@ -50,7 +69,7 @@
   font-family: var(--font-sans);
   font-size: 0.875rem;
   color: var(--color-text-secondary);
-  line-height: 1.6;
+  line-height: 1.65;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
@@ -64,9 +83,23 @@
   font-weight: 600;
   color: var(--color-accent);
   transition: opacity var(--transition-fast);
-  margin-top: auto;
+  margin-top: var(--sp-1);
 }
 
 .article-card-cta:hover {
   opacity: 0.7;
+}
+
+/* Last card in grid — no bottom border */
+.article-card:last-child {
+  border-bottom: none;
+}
+
+@media (max-width: 767px) {
+  .article-card {
+    padding-bottom: var(--sp-4);
+  }
+  .article-card-headline {
+    font-size: 1.0625rem;
+  }
 }

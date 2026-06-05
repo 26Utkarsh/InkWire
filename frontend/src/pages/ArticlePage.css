@@ -1,4 +1,7 @@
-/* ArticlePage.css — Article reading page styles */
+/* =============================================================
+   ArticlePage.css — Article reading page styles
+   Editorial quality, The Hindu-inspired reading experience
+   ============================================================= */
 
 .article-page-loading {
   padding-top: calc(var(--nav-height) + var(--sp-8));
@@ -13,17 +16,22 @@
   gap: var(--sp-4);
 }
 
+/* Top ad — invisible when no publisher ID */
 .article-ad-top {
-  margin: var(--sp-6) auto;
+  margin: 0 auto;
   display: flex;
   justify-content: center;
 }
 
-.article-main {
-  padding: var(--sp-6) 0 var(--sp-10);
+.article-ad-top:not(:empty) {
+  margin: var(--sp-4) auto var(--sp-2);
 }
 
-/* Article header */
+.article-main {
+  padding: var(--sp-8) 0 var(--sp-12);
+}
+
+/* ── ARTICLE HEADER ───────────────────────────────────────── */
 .article-header {
   margin-bottom: var(--sp-6);
 }
@@ -33,7 +41,7 @@
   font-size: clamp(1.75rem, 4vw, 2.75rem);
   font-weight: 700;
   color: var(--color-text-primary);
-  line-height: 1.15;
+  line-height: 1.18;
   letter-spacing: -0.02em;
   margin: var(--sp-4) 0 var(--sp-3);
 }
@@ -44,8 +52,10 @@
   font-weight: 400;
   font-style: italic;
   color: var(--color-text-secondary);
-  line-height: 1.5;
+  line-height: 1.55;
   margin-bottom: var(--sp-4);
+  border-left: 3px solid var(--color-border-strong);
+  padding-left: var(--sp-4);
 }
 
 .article-byline {
@@ -64,16 +74,18 @@
   margin: var(--sp-5) 0;
 }
 
-/* Article image */
+/* ── ARTICLE IMAGE ────────────────────────────────────────── */
 .article-figure {
   margin-bottom: var(--sp-8);
+  /* Full bleed to container edge */
 }
 
 .article-hero-image {
   width: 100%;
-  max-height: 480px;
+  max-height: 520px;
   object-fit: cover;
   border-radius: var(--radius-md);
+  display: block;
 }
 
 .article-image-credit {
@@ -81,22 +93,24 @@
   font-size: 0.75rem;
   color: var(--color-text-muted);
   margin-top: var(--sp-2);
-  text-align: right;
+  font-style: italic;
+  /* Match The Hindu's right-aligned credit style */
 }
 
-/* Mid-article ad */
+/* ── MID-ARTICLE AD ───────────────────────────────────────── */
 .article-ad-mid {
   display: flex;
   justify-content: center;
   margin: var(--sp-8) 0;
 }
 
-/* Sources */
+/* ── SOURCES ──────────────────────────────────────────────── */
 .article-sources {
   margin-top: var(--sp-8);
   padding: var(--sp-5);
   background: var(--color-bg-secondary);
   border-radius: var(--radius-md);
+  border-left: 3px solid var(--color-border-strong);
 }
 
 .article-sources-heading {
@@ -128,7 +142,7 @@
   color: var(--color-text-primary);
 }
 
-/* Tags */
+/* ── TAGS ─────────────────────────────────────────────────── */
 .article-tags {
   display: flex;
   flex-wrap: wrap;
@@ -153,7 +167,7 @@
   border-color: var(--color-text-primary);
 }
 
-/* Share section */
+/* ── SHARE SECTION ────────────────────────────────────────── */
 .share-section {
   display: flex;
   align-items: center;
@@ -174,8 +188,43 @@
   letter-spacing: 0.05em;
 }
 
-/* Sidebar */
+/* ── SIDEBAR ──────────────────────────────────────────────── */
 .article-sidebar-sticky {
   position: sticky;
   top: calc(var(--nav-height) + var(--sp-6));
+}
+
+/* ── MOBILE ───────────────────────────────────────────────── */
+@media (max-width: 767px) {
+  .article-main {
+    padding: var(--sp-5) 0 var(--sp-8);
+  }
+
+  .article-headline {
+    font-size: 1.625rem;
+    line-height: 1.22;
+  }
+
+  .article-subheadline {
+    font-size: 1.0625rem;
+    padding-left: var(--sp-3);
+  }
+
+  .article-hero-image {
+    max-height: 260px;
+    border-radius: 0;
+    /* Full bleed on mobile — match The Hindu */
+    margin-left: calc(-1 * var(--container-padding));
+    margin-right: calc(-1 * var(--container-padding));
+    width: calc(100% + 2 * var(--container-padding));
+  }
+
+  /* Hide sidebar ad on mobile — it only shows a placeholder anyway */
+  .article-sidebar {
+    display: none;
+  }
+
+  .article-ad-mid {
+    margin: var(--sp-6) 0;
+  }
 }

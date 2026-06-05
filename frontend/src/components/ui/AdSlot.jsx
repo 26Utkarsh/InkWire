@@ -1,21 +1,24 @@
 /**
  * @fileoverview AdSlot.jsx — Google AdSense wrapper component for InkWire.
+ * Returns null (invisible) when no publisher ID is configured — no placeholder box shown.
  * Replace data-ad-slot values with your actual AdSense slot IDs after approval.
  */
 
 import React, { useEffect, useRef } from 'react';
 import './AdSlot.css';
 
-/** Ad unit configurations — compact sizes, articles first */
+/** Ad unit configurations */
 const AD_CONFIGS = {
-  leaderboard: { width: '728px', height: '50px',  slot: 'XXXXXXXXXX', label: 'Ad' },
-  rectangle:   { width: '300px', height: '150px', slot: 'XXXXXXXXXX', label: 'Ad' },
-  sidebar:     { width: '300px', height: '400px', slot: 'XXXXXXXXXX', label: 'Ad' },
-  mobile:      { width: '320px', height: '50px',  slot: 'XXXXXXXXXX', label: 'Ad' },
+  leaderboard: { width: '728px', height: '90px',  slot: 'XXXXXXXXXX' },
+  rectangle:   { width: '300px', height: '250px', slot: 'XXXXXXXXXX' },
+  sidebar:     { width: '300px', height: '600px', slot: 'XXXXXXXXXX' },
+  mobile:      { width: '320px', height: '50px',  slot: 'XXXXXXXXXX' },
 };
 
 /**
- * AdSense ad slot wrapper
+ * AdSense ad slot wrapper.
+ * IMPORTANT: When VITE_ADSENSE_PUBLISHER_ID is not set or is placeholder,
+ * this component renders nothing — no grey box, no placeholder text.
  * @param {object} props
  * @param {'leaderboard'|'rectangle'|'sidebar'|'mobile'} props.type
  * @param {string} [props.className]
@@ -25,31 +28,18 @@ const AdSlot = ({ type = 'rectangle', className = '' }) => {
   const config = AD_CONFIGS[type] || AD_CONFIGS.rectangle;
   const publisherId = import.meta.env.VITE_ADSENSE_PUBLISHER_ID;
 
-  useEffect(() => {
-    if (publisherId && publisherId !== 'ca-pub-XXXXXXXXXXXXXXXX') {
-      try {
-        (window.adsbygoogle = window.adsbygoogle || []).push({});
-      } catch (e) {
-        // AdSense not loaded yet — harmless
-      }
-    }
-  }, [publisherId]);
-
-  /** Show placeholder in development or before AdSense approval */
+  // No publisher ID configured → render nothing at all
   if (!publisherId || publisherId === 'ca-pub-XXXXXXXXXXXXXXXX') {
-    return (
-      <div
-        className={`ad-slot ad-slot-${type} ${className}`}
-        style={{ width: config.width, height: config.height }}
-        aria-hidden="true"
-      >
-        <span>{config.label}</span>
-        <small style={{ display: 'block', fontSize: '10px', marginTop: '4px' }}>
-          {config.width} × {config.height}
-        </small>
-      </div>
-    );
+    return null;
   }
+
+  useEffect(() => {
+    try {
+      (window.adsbygoogle = window.adsbygoogle || []).push({});
+    } catch (e) {
+      // AdSense not loaded yet — harmless
+    }
+  }, []);
 
   return (
     <div className={`ad-slot-container ad-slot-${type} ${className}`} ref={adRef}>

@@ -2,9 +2,9 @@
  * @fileoverview Home.jsx — InkWire homepage.
  * FIXES:
  *   - Hero gracefully collapses when no featured article (pulls top story from grid instead)
- *   - Ad unit anchored inside structured card divider, not floating in whitespace
- *   - Section header given breathing room (padding-top above rule)
- *   - Secondary skeleton uses proper pulsing blocks, not inline styles
+ *   - Ad unit: hidden entirely when no real AdSense publisher ID configured
+ *   - Secondary cards stack below hero on mobile (not hidden)
+ *   - Image onError fallback on all thumbnails
  */
 
 import React from 'react';
@@ -15,6 +15,7 @@ import ArticleCard from '../components/article/ArticleCard.jsx';
 import { ArticleCardSkeleton, FeaturedSkeleton, SecondaryCardSkeleton } from '../components/ui/Skeleton.jsx';
 import AdSlot from '../components/ui/AdSlot.jsx';
 import NewsletterForm from '../components/ui/NewsletterForm.jsx';
+import { makeImageErrorHandler } from '../utils/imageUtils.js';
 import './Home.css';
 
 /** Secondary article row — compact horizontal card */
@@ -27,7 +28,13 @@ const SecondaryCard = ({ article }) => (
       <h3 className="secondary-card-headline">{article.headline}</h3>
     </div>
     {article.imageUrl && (
-      <img src={article.imageUrl} alt="" className="secondary-card-thumb" loading="lazy" />
+      <img
+        src={article.imageUrl}
+        alt=""
+        className="secondary-card-thumb"
+        loading="lazy"
+        onError={makeImageErrorHandler(article.topic, article.slug)}
+      />
     )}
   </a>
 );
@@ -60,7 +67,7 @@ const Home = () => {
 
       <div className="page-wrapper">
 
-        {/* ── Leaderboard ad — thin bar, minimal footprint ── */}
+        {/* ── Leaderboard ad — only renders if publisher ID is set ── */}
         <div className="home-ad-strip">
           <div className="container">
             <AdSlot type="leaderboard" />
@@ -90,7 +97,7 @@ const Home = () => {
               )}
             </div>
 
-            {/* Secondary sidebar */}
+            {/* Secondary sidebar — desktop: right column | mobile: below hero */}
             <aside className="home-secondary" aria-label="More top stories">
               {isLoading
                 ? Array.from({ length: 4 }, (_, i) => <SecondaryCardSkeleton key={i} />)
@@ -106,7 +113,7 @@ const Home = () => {
             <h2 className="section-title">Latest Stories</h2>
           </div>
 
-          {/* Ad anchored inside section as a card divider — not floating in whitespace */}
+          {/* Ad inside section — only shows if publisher ID configured */}
           <div className="home-ad-inline">
             <AdSlot type="rectangle" />
           </div>

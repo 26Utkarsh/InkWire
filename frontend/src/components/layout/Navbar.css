@@ -42,6 +42,13 @@
   line-height: 1;
 }
 
+@media (max-width: 767px) {
+  .navbar-logo-text {
+    font-size: 1.875rem;
+    letter-spacing: -0.03em;
+  }
+}
+
 /* ── TOPIC LINKS ──────────────────────────────────────────── */
 .navbar-links {
   display: flex;
@@ -283,6 +290,12 @@
 @media (max-width: 767px) {
   .navbar-links { display: none; }
   .navbar-hamburger { display: flex; }
+
+  /* Larger touch targets on mobile */
+  .navbar-icon-btn {
+    width: 44px;
+    height: 44px;
+  }
 
   .search-modal-overlay {
     padding-top: 60px;

@@ -5,6 +5,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import ArticleMeta from './ArticleMeta.jsx';
+import { makeImageErrorHandler } from '../../utils/imageUtils.js';
 import './FeaturedCard.css';
 
 /**
@@ -21,6 +22,7 @@ const FeaturedCard = ({ article }) => (
             src={article.imageUrl}
             alt={article.headline}
             className="featured-card-image"
+            onError={makeImageErrorHandler(article.topic, article.slug)}
           />
         ) : (
           <div className="featured-card-placeholder" />
