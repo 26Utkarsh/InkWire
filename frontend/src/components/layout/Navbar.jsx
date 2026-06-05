@@ -54,6 +54,7 @@ const Navbar = () => {
 
           {/* Logo */}
           <Link to="/" className="navbar-logo" onClick={closeMobileMenu} aria-label="InkWire — Home">
+            <img src="/logo.png" alt="InkWire Logo" className="navbar-logo-img" />
             <span className="navbar-logo-text">InkWire</span>
           </Link>
 

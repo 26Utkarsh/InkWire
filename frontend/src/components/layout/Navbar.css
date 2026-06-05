@@ -31,6 +31,15 @@
 .navbar-logo {
   flex-shrink: 0;
   text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.navbar-logo-img {
+  height: 32px;
+  width: 32px;
+  object-fit: contain;
 }
 
 .navbar-logo-text {
