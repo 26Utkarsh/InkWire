@@ -1,0 +1,67 @@
+/* ArticleEditor.css — Rich text editor page styles */
+
+.editor-loading {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  padding: var(--sp-10);
+  color: var(--color-text-muted);
+  font-family: var(--font-sans);
+}
+
+.editor-page {
+  max-width: 900px;
+}
+
+.editor-word-count {
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  margin-top: var(--sp-1);
+}
+
+.editor-fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+}
+
+.editor-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.editor-label {
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.editor-headline-input {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.editor-body-field {
+  gap: var(--sp-3);
+}
+
+.editor-quill {
+  background: var(--color-bg);
+  border-radius: var(--radius-md);
+}
+
+.editor-quill .ql-container {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  min-height: 400px;
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+}
+
+.editor-quill .ql-toolbar {
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  background: var(--color-bg-secondary);
+}

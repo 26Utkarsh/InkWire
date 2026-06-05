@@ -1,0 +1,197 @@
+/* =============================================================
+   Home.css — Homepage styles
+   FIXES:
+   - Ad strip: flush thin banner with no surrounding whitespace
+   - Ad inline: anchored in section as a card divider
+   - Hero empty state: designed, not a blank void
+   - Section header: breathing room above divider line
+   ============================================================= */
+
+/* ── AD STRIP (top of page, leaderboard) ─────────────────── */
+/* Thin containing strip — no large margin, just a subtle separator */
+.home-ad-strip {
+  border-bottom: 1px solid var(--color-border);
+  padding: var(--sp-2) 0;
+  background: var(--color-bg-secondary);
+  display: flex;
+  justify-content: center;
+}
+
+/* ── HERO SECTION ─────────────────────────────────────────── */
+.home-hero {
+  padding-top: var(--sp-8);
+  margin-bottom: var(--sp-10);
+}
+
+.home-featured {
+  min-height: 440px;
+  position: relative;
+}
+
+.home-secondary {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── HERO EMPTY STATE ─────────────────────────────────────── */
+/* No blank void — structured placeholder with shimmer background */
+.home-empty-hero {
+  height: 440px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+}
+
+/* Shimmer animation layer */
+.home-empty-pulse {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    110deg,
+    var(--color-bg-secondary) 0%,
+    var(--color-bg-tertiary) 40%,
+    var(--color-bg-secondary) 60%,
+    var(--color-bg-tertiary) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeletonShimmer 2s ease-in-out infinite;
+}
+
+.home-empty-content {
+  position: relative;
+  z-index: 1;
+  padding: var(--sp-8);
+  border-top: 1px solid var(--color-border);
+  width: 100%;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.home-empty-eyebrow {
+  display: inline-block;
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
+  margin-bottom: var(--sp-3);
+}
+
+.home-empty-headline {
+  font-family: var(--font-serif);
+  font-size: 1.375rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  line-height: 1.35;
+  margin-bottom: var(--sp-2);
+}
+
+.home-empty-sub {
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+/* ── AD INLINE (anchored in section, not floating) ────────── */
+/* Sits as a structural separator within the Latest Stories section */
+.home-ad-inline {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-8);
+  padding: var(--sp-4);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+/* Ensure the ad is centered within its structural card */
+.home-ad-inline > * {
+  margin: 0 auto;
+}
+
+/* ── LATEST STORIES SECTION ───────────────────────────────── */
+.home-grid-section {
+  margin-bottom: var(--sp-12);
+}
+
+.home-grid-empty {
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  color: var(--color-text-muted);
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: var(--sp-10) 0;
+}
+
+/* ── SECONDARY CARD ───────────────────────────────────────── */
+.secondary-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  padding: var(--sp-4) 0;
+  border-bottom: 1px solid var(--color-border);
+  text-decoration: none;
+  transition: opacity var(--transition-fast);
+}
+
+.secondary-card:last-child { border-bottom: none; }
+.secondary-card:hover { opacity: 0.72; }
+
+.secondary-card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.secondary-card-headline {
+  font-family: var(--font-serif);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.secondary-card-thumb {
+  width: 72px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+/* ── RESPONSIVE ───────────────────────────────────────────── */
+@media (max-width: 899px) {
+  .home-hero {
+    padding-top: var(--sp-6);
+  }
+  .home-empty-hero {
+    height: 320px;
+  }
+}
+
+@media (max-width: 767px) {
+  .home-hero {
+    margin-bottom: var(--sp-6);
+  }
+  .home-empty-hero {
+    height: 260px;
+  }
+  .home-empty-content {
+    padding: var(--sp-5);
+  }
+  .home-ad-inline {
+    padding: var(--sp-3);
+    justify-content: center;
+  }
+}

@@ -1,0 +1,5 @@
+/* public/_redirects — Render Static Site router fix
+   Without this, refreshing any page (e.g. /article/slug) gives 404.
+   Render reads this file automatically for static sites.
+*/
+/* /index.html 200

@@ -1,0 +1,111 @@
+/* FeaturedCard.css — Hero featured article card styles */
+
+.featured-card {
+  position: relative;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  min-height: 420px;
+  cursor: pointer;
+}
+
+.featured-card-link {
+  display: block;
+  height: 100%;
+  text-decoration: none;
+}
+
+.featured-card-image-wrap {
+  position: absolute;
+  inset: 0;
+}
+
+.featured-card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--transition-slow);
+}
+
+.featured-card:hover .featured-card-image {
+  transform: scale(1.04);
+}
+
+.featured-card-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #1a1a1a, #3a3a3a);
+}
+
+.featured-card-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0,0,0,0.92) 0%,
+    rgba(0,0,0,0.55) 50%,
+    rgba(0,0,0,0.1) 100%
+  );
+}
+
+.featured-card-content {
+  position: relative;
+  z-index: 1;
+  padding: var(--sp-8);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 420px;
+  gap: var(--sp-3);
+}
+
+.featured-card-content .article-meta {
+  color: rgba(255,255,255,0.8);
+}
+
+.featured-card-content .badge {
+  opacity: 0.95;
+}
+
+.featured-card-headline {
+  font-family: var(--font-serif);
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.featured-card-subheadline {
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  color: rgba(255,255,255,0.85);
+  line-height: 1.5;
+  max-width: 500px;
+}
+
+.featured-card-cta {
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #fff;
+  opacity: 0.8;
+  margin-top: var(--sp-2);
+  transition: opacity var(--transition-fast);
+}
+
+.featured-card:hover .featured-card-cta {
+  opacity: 1;
+}
+
+@media (max-width: 767px) {
+  .featured-card {
+    min-height: 320px;
+  }
+  .featured-card-content {
+    min-height: 320px;
+    padding: var(--sp-6);
+  }
+  .featured-card-headline {
+    font-size: 1.375rem;
+  }
+}

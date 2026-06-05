@@ -1,0 +1,131 @@
+/* NewsletterForm.css — Newsletter signup form styles
+   FIX: Newsletter bar now uses dark background to blend seamlessly into the footer.
+   No more jarring white-to-black jump at the bottom of pages.
+*/
+
+/* ── BAR VARIANT (used at bottom of homepage, above footer) ─── */
+.newsletter-form.newsletter-bar {
+  background: #1a1a1a;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  border-bottom: none;
+}
+
+.newsletter-bar {
+  padding: var(--sp-8) 0;
+}
+
+/* ── CARD VARIANT (used inline in articles) ──────────────────── */
+.newsletter-form.newsletter-card {
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--sp-8);
+}
+
+/* ── SHARED LAYOUT ───────────────────────────────────────────── */
+.newsletter-content {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 var(--container-padding);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-8);
+  flex-wrap: wrap;
+}
+
+/* ── TYPOGRAPHY — bar variant (dark bg, light text) ──────────── */
+.newsletter-bar .newsletter-title {
+  font-family: var(--font-serif);
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: var(--sp-1);
+}
+
+.newsletter-bar .newsletter-desc {
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  color: #9ca3af;
+}
+
+/* ── TYPOGRAPHY — card variant (light bg, dark text) ─────────── */
+.newsletter-card .newsletter-title {
+  font-family: var(--font-serif);
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: var(--sp-1);
+}
+
+.newsletter-card .newsletter-desc {
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+/* ── INPUT ROW ───────────────────────────────────────────────── */
+.newsletter-inputs {
+  display: flex;
+  gap: var(--sp-3);
+  flex: 1;
+  min-width: 300px;
+  max-width: 460px;
+}
+
+/* Email input styled for dark background in bar variant */
+.newsletter-bar .newsletter-email {
+  background: rgba(255,255,255,0.07);
+  border-color: rgba(255,255,255,0.15);
+  color: #ffffff;
+}
+
+.newsletter-bar .newsletter-email::placeholder {
+  color: #6b7280;
+}
+
+.newsletter-bar .newsletter-email:focus {
+  border-color: rgba(255,255,255,0.4);
+  background: rgba(255,255,255,0.1);
+  outline: none;
+  box-shadow: none;
+}
+
+.newsletter-email { flex: 1; }
+
+.newsletter-submit {
+  white-space: nowrap;
+  padding: var(--sp-3) var(--sp-6);
+}
+
+/* ── SUCCESS STATE ───────────────────────────────────────────── */
+.newsletter-done {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  justify-content: center;
+  padding: var(--sp-6) var(--sp-8);
+  color: #10b981;
+  font-family: var(--font-sans);
+  font-weight: 500;
+}
+
+.newsletter-done-icon { font-size: 1.25rem; }
+
+/* ── RESPONSIVE ──────────────────────────────────────────────── */
+@media (max-width: 767px) {
+  .newsletter-content {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .newsletter-inputs {
+    min-width: unset;
+    flex-direction: column;
+  }
+
+  .newsletter-bar .newsletter-title,
+  .newsletter-card .newsletter-title {
+    font-size: 1.125rem;
+  }
+}

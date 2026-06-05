@@ -1,0 +1,87 @@
+/* AdminLogin.css — Admin login page styles */
+
+.admin-login-page {
+  min-height: 100vh;
+  background: var(--color-bg-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-8);
+}
+
+.admin-login-card {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-10);
+  width: 100%;
+  max-width: 400px;
+  box-shadow: var(--shadow-lg);
+  animation: fadeInUp 0.3s ease;
+}
+
+.admin-login-header {
+  text-align: center;
+  margin-bottom: var(--sp-8);
+}
+
+.admin-login-logo {
+  font-family: var(--font-serif);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: var(--sp-1);
+}
+
+.admin-login-subtitle {
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.admin-login-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+}
+
+.admin-login-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.admin-login-label {
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.admin-login-error {
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  color: var(--color-error);
+  background: #fef2f2;
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--radius-md);
+  border-left: 3px solid var(--color-error);
+}
+
+.admin-login-btn {
+  width: 100%;
+  padding: var(--sp-4);
+  font-size: 1rem;
+  justify-content: center;
+  margin-top: var(--sp-2);
+}
+
+.admin-login-footer {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  text-align: center;
+  margin-top: var(--sp-6);
+  padding-top: var(--sp-6);
+  border-top: 1px solid var(--color-border);
+}

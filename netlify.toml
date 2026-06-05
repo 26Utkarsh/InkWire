@@ -1,0 +1,12 @@
+# netlify.toml — Netlify deployment config for InkWire frontend
+# Fixes React Router 404 on page refresh
+
+[build]
+  base    = "frontend"
+  command = "npm run build"
+  publish = "dist"
+
+[[redirects]]
+  from   = "/*"
+  to     = "/index.html"
+  status = 200

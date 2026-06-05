@@ -1,0 +1,106 @@
+/* =============================================================
+   responsive.css — Responsive breakpoints for InkWire
+   Desktop-first with consistent uniform spacing
+   ============================================================= */
+
+/* === CONTAINER — Uniform max-width and horizontal padding === */
+.container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: 0 var(--container-padding);
+}
+
+/* === SECTION SPACING — All sections use same vertical rhythm === */
+.section-gap {
+  margin-bottom: var(--section-gap);
+}
+
+/* === GRID SYSTEM — Uniform gap across all grids === */
+.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--sp-6); }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-6); }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-6); }
+
+/* Homepage featured layout: hero takes 65%, secondary takes 35% */
+.featured-layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: var(--sp-8);
+  align-items: start;
+}
+
+/* Article page layout: content + sidebar */
+.article-layout {
+  display: grid;
+  grid-template-columns: var(--article-max-width) 1fr;
+  gap: var(--sp-10);
+  max-width: calc(var(--article-max-width) + 340px + var(--sp-10));
+  margin: 0 auto;
+}
+
+/* === LARGE DESKTOP (1200px+) === */
+@media (min-width: 1200px) {
+  .hide-desktop { display: none !important; }
+}
+
+/* === TABLET (900px - 1199px) === */
+@media (max-width: 1199px) {
+  .featured-layout {
+    grid-template-columns: 1fr 300px;
+    gap: var(--sp-6);
+  }
+
+  .grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .article-layout {
+    grid-template-columns: 1fr;
+    max-width: var(--article-max-width);
+    margin: 0 auto;
+  }
+
+  .article-sidebar {
+    display: none;
+  }
+}
+
+/* === MEDIUM TABLET (768px - 899px) === */
+@media (max-width: 899px) {
+  .featured-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* === MOBILE (< 768px) === */
+@media (max-width: 767px) {
+  .featured-layout,
+  .grid-2,
+  .grid-3,
+  .grid-4 {
+    grid-template-columns: 1fr;
+    gap: var(--sp-4);
+  }
+
+  .hide-mobile { display: none !important; }
+
+  .article-body {
+    font-size: 1rem;
+    line-height: 1.75;
+  }
+
+  /* Drop cap disabled on mobile for readability */
+  .article-body > p:first-of-type::first-letter {
+    float: none;
+    font-size: inherit;
+    line-height: inherit;
+    padding: 0;
+  }
+
+  .navbar-links { display: none; }
+  .navbar-hamburger { display: flex; }
+}

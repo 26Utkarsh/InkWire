@@ -1,0 +1,33 @@
+/* AdSlot.css — Ad slot styles — compact, article-first */
+
+.ad-slot {
+  background: var(--color-bg-tertiary);
+  border: 1px dashed var(--color-border);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: var(--color-text-muted);
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  opacity: 0.7;
+  margin: 0 auto;
+}
+
+.ad-slot-container {
+  display: flex;
+  justify-content: center;
+}
+
+@media (max-width: 767px) {
+  .ad-slot-leaderboard {
+    width: 320px !important;
+    height: 50px !important;
+  }
+  .ad-slot-rectangle {
+    width: 300px !important;
+    height: 100px !important;
+  }
+}

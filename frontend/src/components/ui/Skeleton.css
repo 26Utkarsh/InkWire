@@ -1,0 +1,109 @@
+/* =============================================================
+   Skeleton.css — Premium pulsing gradient shimmer loaders
+   FIXES:
+   - Real linear-gradient shimmer (not flat grey pulse)
+   - Proper dimensions for every card type
+   ============================================================= */
+
+/* ── SHIMMER ANIMATION ────────────────────────────────────── */
+@keyframes skeletonShimmer {
+  0%   { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
+
+/* Base shimmer block — all skeletons use this */
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    #f0f0f0 0%,
+    #e8e8e8 20%,
+    #f5f5f5 40%,
+    #e8e8e8 60%,
+    #f0f0f0 100%
+  );
+  background-size: 400% 100%;
+  animation: skeletonShimmer 1.6s ease-in-out infinite;
+  border-radius: var(--radius-sm);
+  display: block;
+}
+
+/* ── ARTICLE CARD SKELETON ────────────────────────────────── */
+.skeleton-card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--color-bg);
+}
+
+.skeleton-image {
+  border-radius: 0 !important;
+  display: block;
+}
+
+.skeleton-content {
+  padding: var(--sp-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.skeleton-badge {
+  border-radius: var(--radius-sm) !important;
+}
+
+/* ── FEATURED SKELETON ────────────────────────────────────── */
+.skeleton-featured {
+  height: 440px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.skeleton-featured > .skeleton-shimmer {
+  flex: 1;
+  border-radius: 0;
+}
+
+.skeleton-featured-caption {
+  padding: var(--sp-6);
+  background: var(--color-bg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  border-top: 1px solid var(--color-border);
+}
+
+/* ── SECONDARY CARD SKELETON ──────────────────────────────── */
+.skeleton-secondary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  padding: var(--sp-4) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.skeleton-secondary:last-child {
+  border-bottom: none;
+}
+
+.skeleton-secondary-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.skeleton-thumb {
+  border-radius: var(--radius-sm) !important;
+  flex-shrink: 0;
+}
+
+/* ── TEXT GROUP ───────────────────────────────────────────── */
+.skeleton-text-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}

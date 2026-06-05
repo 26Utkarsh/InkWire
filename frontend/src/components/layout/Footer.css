@@ -1,0 +1,161 @@
+/* =============================================================
+   Footer.css — Site footer
+   FIXES:
+   - List items use no bullet points (list-style: none, no <ul> decoration)
+   - Footer links are clean vertical stack with hover underline, not dashes
+   - Consistent column spacing and typography weight
+   ============================================================= */
+
+.footer {
+  background: #111111;
+  color: #e5e5e5;
+  margin-top: auto;
+}
+
+.footer-inner {
+  padding-top: var(--sp-14);
+  padding-bottom: var(--sp-8);
+}
+
+/* ── FOOTER TOP GRID ──────────────────────────────────────── */
+.footer-top {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: var(--sp-12);
+  padding-bottom: var(--sp-10);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ── BRAND COLUMN ─────────────────────────────────────────── */
+.footer-logo {
+  font-family: var(--font-serif);
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #ffffff;
+  display: block;
+  margin-bottom: var(--sp-4);
+  letter-spacing: -0.02em;
+  text-decoration: none;
+}
+
+.footer-logo:hover { color: #ffffff; opacity: 0.85; }
+
+.footer-tagline {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  font-style: italic;
+  color: #a0a0a0;
+  margin-bottom: var(--sp-3);
+  line-height: 1.6;
+}
+
+.footer-disclaimer {
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  color: #6b7280;
+  line-height: 1.6;
+}
+
+/* ── LINK COLUMNS ─────────────────────────────────────────── */
+.footer-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.footer-heading {
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #6b7280;
+  margin-bottom: var(--sp-5);
+}
+
+/* FIX: No bullet points. Clean vertical link list with spacing only */
+.footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+/* FIX: No dash prefixes. Links are clean, lightweight, hover underline */
+.footer-link {
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  color: #b0b0b0;
+  text-decoration: none;
+  transition: color var(--transition-fast);
+  line-height: 1.4;
+  position: relative;
+}
+
+.footer-link:hover {
+  color: #ffffff;
+}
+
+/* Subtle underline on hover — modern, not a dash or bullet */
+.footer-links .footer-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 0;
+  height: 1px;
+  background: #ffffff;
+  transition: width var(--transition-fast);
+}
+
+.footer-links .footer-link:hover::after {
+  width: 100%;
+}
+
+/* ── FOOTER BOTTOM BAR ────────────────────────────────────── */
+.footer-bottom {
+  padding-top: var(--sp-6);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+}
+
+.footer-copyright,
+.footer-adsense {
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  color: #4b5563;
+  line-height: 1.4;
+}
+
+/* ── RESPONSIVE ───────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .footer-top {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--sp-8);
+  }
+
+  .footer-brand {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 767px) {
+  .footer-top {
+    grid-template-columns: 1fr;
+    gap: var(--sp-8);
+  }
+
+  .footer-brand {
+    grid-column: auto;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sp-2);
+  }
+}

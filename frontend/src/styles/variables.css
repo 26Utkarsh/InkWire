@@ -1,0 +1,81 @@
+/* =============================================================
+   variables.css — InkWire Design System Tokens
+   NYT/Bloomberg editorial aesthetic: clean white, elegant serif
+   ============================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap');
+
+:root {
+  /* === COLORS === */
+  --color-bg:               #ffffff;
+  --color-bg-secondary:     #f9f9f9;
+  --color-bg-tertiary:      #f1f1f1;
+  --color-text-primary:     #1a1a1a;
+  --color-text-secondary:   #4a4a4a;
+  --color-text-muted:       #6b7280;
+  --color-accent:           #000000;
+  --color-accent-hover:     #222222;
+  --color-accent-india:     #f97316;
+  --color-border:           #e5e5e5;
+  --color-border-strong:    #c8c8c8;
+  --color-breaking:         #dc2626;
+  --color-success:          #059669;
+  --color-warning:          #f59e0b;
+  --color-error:            #dc2626;
+
+  /* === TOPIC COLORS === */
+  --color-world:            #2563eb;
+  --color-india:            #f97316;
+  --color-technology:       #7c3aed;
+  --color-business:         #059669;
+  --color-science:          #0891b2;
+  --color-politics:         #dc2626;
+
+  /* === TYPOGRAPHY === */
+  --font-serif:             'Playfair Display', Georgia, 'Times New Roman', serif;
+  --font-sans:              'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* === ARTICLE TYPOGRAPHY === */
+  --article-font-size:      1.125rem;
+  --article-line-height:    1.8;
+  --article-max-width:      680px;
+  --article-font:           var(--font-serif);
+
+  /* === LAYOUT === */
+  --container-max:          1200px;
+  --container-padding:      clamp(16px, 4vw, 48px);
+  --nav-height:             64px;
+  --section-gap:            clamp(32px, 5vw, 80px);
+
+  /* === SPACING === */
+  --sp-1:  4px;
+  --sp-2:  8px;
+  --sp-3:  12px;
+  --sp-4:  16px;
+  --sp-5:  20px;
+  --sp-6:  24px;
+  --sp-8:  32px;
+  --sp-10: 40px;
+  --sp-12: 48px;
+  --sp-16: 64px;
+
+  /* === BORDER RADIUS === */
+  --radius-sm:  2px;
+  --radius-md:  4px;
+  --radius-lg:  8px;
+
+  /* === SHADOWS === */
+  --shadow-sm:   0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md:   0 4px 16px rgba(0,0,0,0.10);
+  --shadow-lg:   0 8px 32px rgba(0,0,0,0.12);
+
+  /* === TRANSITIONS === */
+  --transition-fast:   150ms ease;
+  --transition-normal: 250ms ease;
+  --transition-slow:   400ms ease;
+
+  /* === Z-INDEX === */
+  --z-navbar:  100;
+  --z-toast:   200;
+  --z-modal:   300;
+}
