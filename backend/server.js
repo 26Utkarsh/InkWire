@@ -45,8 +45,10 @@ app.use(helmet({
 /** Configure CORS — only accept requests from known frontend origin */
 app.use(cors({
   origin: (origin, callback) => {
-    const allowed = [process.env.FRONTEND_URL || 'http://localhost:5173'];
-    if (!origin || allowed.includes(origin)) return callback(null, true);
+    const allowed = [
+      (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, '')
+    ];
+    if (!origin || allowed.includes(origin.replace(/\/$/, ''))) return callback(null, true);
     return callback(new Error('CORS: Origin not allowed'));
   },
   credentials: true,
