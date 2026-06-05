@@ -1,9 +1,6 @@
 /**
  * @fileoverview Navbar.jsx — Top navigation bar for InkWire.
- * FIXES:
- *   - Search replaced with full glassmorphic modal overlay (no layout shift)
- *   - 🔍 icon hidden when modal is open (no duplication)
- *   - Right-side actions aligned with consistent padding, no edge flush
+ * Premium two-row editorial layout inspired by The New York Times and The Hindu.
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -50,30 +47,21 @@ const Navbar = () => {
   return (
     <>
       <header className="navbar" role="banner">
-        <div className="navbar-inner container">
+        {/* Row 1: Top branding bar */}
+        <div className="navbar-top container">
+          {/* Left info box (visible on desktop) */}
+          <div className="navbar-top-left">
+            <span className="navbar-edition">GLOBAL EDITION</span>
+          </div>
 
-          {/* Logo */}
+          {/* Logo (Centered on desktop, scaled prominent) */}
           <Link to="/" className="navbar-logo" onClick={closeMobileMenu} aria-label="InkWire — Home">
             <img src="/logo.png" alt="InkWire Logo" className="navbar-logo-img" />
             <span className="navbar-logo-text">InkWire</span>
           </Link>
 
-          {/* Desktop topic navigation */}
-          <nav className="navbar-links" aria-label="Topic navigation">
-            {TOPICS.map((topic) => (
-              <NavLink
-                key={topic.id}
-                to={`/topic/${topic.id}`}
-                className={({ isActive }) => `navbar-link ${isActive ? 'navbar-link--active' : ''}`}
-                style={{ '--topic-color': topic.color }}
-              >
-                {topic.label}
-              </NavLink>
-            ))}
-          </nav>
-
-          {/* Right actions: search icon hidden when modal is open */}
-          <div className="navbar-actions">
+          {/* Right actions */}
+          <div className="navbar-top-right">
             {!searchOpen && (
               <button
                 className="navbar-icon-btn"
@@ -107,7 +95,25 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Mobile menu */}
+        {/* Row 2: Navigation Links (desktop only, centered list) */}
+        <div className="navbar-bottom">
+          <div className="navbar-bottom-inner container">
+            <nav className="navbar-links" aria-label="Topic navigation">
+              {TOPICS.map((topic) => (
+                <NavLink
+                  key={topic.id}
+                  to={`/topic/${topic.id}`}
+                  className={({ isActive }) => `navbar-link ${isActive ? 'navbar-link--active' : ''}`}
+                  style={{ '--topic-color': topic.color }}
+                >
+                  {topic.label}
+                </NavLink>
+              ))}
+            </nav>
+          </div>
+        </div>
+
+        {/* Mobile menu dropdown */}
         {mobileMenuOpen && (
           <div className="navbar-mobile-menu" aria-label="Mobile navigation">
             <nav className="navbar-mobile-nav">
@@ -140,7 +146,7 @@ const Navbar = () => {
         )}
       </header>
 
-      {/* Glassmorphic search modal — full-screen overlay, no layout shift */}
+      {/* Glassmorphic search modal — full-screen overlay */}
       {searchOpen && (
         <div
           className="search-modal-overlay"

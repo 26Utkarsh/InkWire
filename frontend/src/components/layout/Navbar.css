@@ -1,9 +1,6 @@
 /* =============================================================
-   Navbar.css — Navigation & Search Modal
-   FIXES:
-   - Right actions use consistent padding (not flush to edge)
-   - Glassmorphic search modal (no layout shift, no dropdown)
-   - Icon buttons are uniform 40×40 touch targets
+   Navbar.css — Premium Two-Row Editorial Header
+   Clean, classic, and prestigious layout like NYT / The Hindu
    ============================================================= */
 
 /* ── NAVBAR SHELL ─────────────────────────────────────────── */
@@ -12,59 +9,71 @@
   top: 0;
   left: 0;
   right: 0;
-  height: var(--nav-height);
-  background: rgba(255, 255, 255, 0.95);
+  height: auto;
+  background: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--color-border);
   z-index: var(--z-navbar);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.015);
 }
 
-.navbar-inner {
+/* Row 1: Top Bar */
+.navbar-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 70px;
+  padding: 0 var(--container-padding);
+}
+
+.navbar-top-left, .navbar-top-right {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.navbar-top-left {
+  justify-content: flex-start;
+}
+
+.navbar-top-right {
+  justify-content: flex-end;
+  gap: var(--sp-1);
+}
+
+.navbar-edition {
+  font-family: var(--font-sans);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  border: 1px solid var(--color-border-strong);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+}
+
+/* Row 2: Bottom Navigation Bar */
+.navbar-bottom {
+  border-top: 1px solid var(--color-border);
+  height: 44px;
+  background: #ffffff;
+}
+
+.navbar-bottom-inner {
   height: 100%;
   display: flex;
+  justify-content: center;
   align-items: center;
-  gap: var(--sp-6);
 }
 
-/* ── LOGO ─────────────────────────────────────────────────── */
-.navbar-logo {
-  flex-shrink: 0;
-  text-decoration: none;
-  display: flex;
-  align-items: center;
-  gap: var(--sp-2);
-}
-
-.navbar-logo-img {
-  height: 32px;
-  width: 32px;
-  object-fit: contain;
-}
-
-.navbar-logo-text {
-  font-family: var(--font-serif);
-  font-size: 1.625rem;
-  font-weight: 700;
-  color: var(--color-text-primary);
-  letter-spacing: -0.02em;
-  line-height: 1;
-}
-
-@media (max-width: 767px) {
-  .navbar-logo-text {
-    font-size: 1.875rem;
-    letter-spacing: -0.03em;
-  }
-}
-
-/* ── TOPIC LINKS ──────────────────────────────────────────── */
 .navbar-links {
   display: flex;
   align-items: center;
-  flex: 1;
-  gap: 0;
-  overflow: hidden;
+  justify-content: center;
+  gap: var(--sp-4);
+  height: 100%;
 }
 
 .navbar-link {
@@ -73,15 +82,15 @@
   font-weight: 500;
   color: var(--color-text-secondary);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  padding: 6px var(--sp-3);
+  letter-spacing: 0.08em;
+  padding: 0 var(--sp-3);
+  height: 44px;
+  display: flex;
+  align-items: center;
   border-bottom: 2px solid transparent;
   transition: color var(--transition-fast), border-color var(--transition-fast);
   white-space: nowrap;
-  line-height: var(--nav-height);
-  height: var(--nav-height);
-  display: flex;
-  align-items: center;
+  text-decoration: none;
 }
 
 .navbar-link:hover {
@@ -95,18 +104,32 @@
   border-bottom-color: var(--topic-color, var(--color-accent));
 }
 
-/* ── RIGHT-SIDE ACTIONS ───────────────────────────────────── */
-/* Uses margin-left:auto to push flush right, but keeps internal
-   padding via the container — consistent with left-side padding */
-.navbar-actions {
-  margin-left: auto;
+/* ── LOGO SIZING (Centered prominent brand) ───────────────── */
+.navbar-logo {
   display: flex;
   align-items: center;
-  gap: var(--sp-1);
-  flex-shrink: 0;
+  justify-content: center;
+  gap: var(--sp-3);
+  text-decoration: none;
 }
 
-/* Uniform icon button — 40×40 touch target, no emoji weirdness */
+.navbar-logo-img {
+  height: 48px;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.03));
+}
+
+.navbar-logo-text {
+  font-family: var(--font-serif);
+  font-size: 2.35rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+/* ── RIGHT-SIDE ACTIONS ───────────────────────────────────── */
 .navbar-icon-btn {
   display: flex;
   align-items: center;
@@ -180,7 +203,6 @@
 }
 
 /* ── GLASSMORPHIC SEARCH MODAL ────────────────────────────── */
-/* Full-viewport overlay — no layout shift, no dropdown */
 .search-modal-overlay {
   position: fixed;
   inset: 0;
@@ -291,16 +313,40 @@
 /* ── RESPONSIVE ───────────────────────────────────────────── */
 @media (max-width: 1100px) {
   .navbar-link {
-    padding: 6px var(--sp-2);
+    padding: 0 var(--sp-2);
     font-size: 0.75rem;
+  }
+  .navbar-links {
+    gap: var(--sp-2);
   }
 }
 
 @media (max-width: 767px) {
-  .navbar-links { display: none; }
-  .navbar-hamburger { display: flex; }
+  .navbar-top {
+    height: 56px;
+    padding: 0 var(--sp-4);
+  }
+  
+  .navbar-top-left {
+    display: none;
+  }
 
-  /* Larger touch targets on mobile */
+  .navbar-logo-img {
+    height: 32px;
+  }
+
+  .navbar-logo-text {
+    font-size: 1.625rem;
+  }
+
+  .navbar-bottom {
+    display: none;
+  }
+
+  .navbar-hamburger {
+    display: flex;
+  }
+
   .navbar-icon-btn {
     width: 44px;
     height: 44px;
@@ -308,7 +354,6 @@
 
   .search-modal-overlay {
     padding-top: 60px;
-    align-items: flex-start;
   }
 
   .search-modal {
