@@ -71,23 +71,45 @@ const buildQuery = (topic, headline) => {
   return `${keywords} ${topicBase}`.trim();
 };
 
+/** Curated list of high-quality, permanent Unsplash image URLs to use as fallbacks */
+const PLACEHOLDERS = {
+  world: [
+    'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1526470608268-f674ce90ebd4?auto=format&fit=crop&w=800&q=80'
+  ],
+  india: [
+    'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=800&q=80'
+  ],
+  technology: [
+    'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=800&q=80'
+  ],
+  business: [
+    'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1590283603385-17ffb3a7f29f?auto=format&fit=crop&w=800&q=80'
+  ],
+  science: [
+    'https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1532187643603-ba119ca4109e?auto=format&fit=crop&w=800&q=80'
+  ],
+  politics: [
+    'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?auto=format&fit=crop&w=800&q=80'
+  ]
+};
+
 /**
- * Return a placeholder image from Unsplash Source (no API key needed)
+ * Return a placeholder image from static curated lists (no API key needed)
  * @param {string} topic - Topic id for relevant placeholder
  * @returns {{url: string, credit: string}}
  */
 const getPlaceholder = (topic) => {
-  const queries = {
-    world: 'world,globe',
-    india: 'india,city',
-    technology: 'technology,digital',
-    business: 'business,city',
-    science: 'science,nature',
-    politics: 'architecture,government',
-  };
-  const q = queries[topic] || 'news';
+  const list = PLACEHOLDERS[topic] || PLACEHOLDERS.world;
+  // Pick a random image from the list for variety
+  const randomIndex = Math.floor(Math.random() * list.length);
   return {
-    url: `https://source.unsplash.com/${IMAGE.DEFAULT_WIDTH}x${IMAGE.DEFAULT_HEIGHT}/?${q}`,
+    url: list[randomIndex],
     credit: 'Photo via Unsplash',
   };
 };
