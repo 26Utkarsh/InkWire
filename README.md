@@ -1,300 +1,175 @@
-# InkWire — AI-Powered News Publishing Platform
+# 📰 InkWire — AI-Powered News Publishing Platform
 
-> *"The world's most important stories, written for you."*
+<p align="center">
+  <img src="https://img.shields.io/badge/Stack-MERN-blue?style=for-the-badge" alt="MERN Stack" />
+  <img src="https://img.shields.io/badge/AI-Gemini%20%26%20Groq-purple?style=for-the-badge" alt="AI Stack" />
+  <img src="https://img.shields.io/badge/Security-Hardened-success?style=for-the-badge" alt="Security Hardened" />
+  <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" alt="License" />
+</p>
 
-InkWire is a production-grade, fully automated AI news publishing platform. It fetches thousands of global and India headlines daily, uses AI to write complete editorial articles, sends drafts to an admin for review, and publishes on a fixed schedule with Google AdSense monetization built in.
+> *"The world's most important stories, automated and curated for you."*
 
----
-
-## 1. What InkWire Is
-
-| Feature | Detail |
-|---|---|
-| **News Sources** | NewsAPI + GNews + 7 RSS feeds (BBC, Reuters, The Hindu, TOI, TechCrunch, Al Jazeera, NDTV) |
-| **AI Writing** | Gemini 1.5 Flash (primary) + Groq LLaMA 70B (fallback) |
-| **Editorial Control** | Admin reviews every draft — nothing publishes without approval |
-| **Publishing Schedule** | 8:00 AM + 1:00 PM + 7:00 PM IST |
-| **Monetization** | Google AdSense slots pre-built in layout |
-| **Frontend** | React + Vite, NYT-style editorial design |
-| **Backend** | Node.js + Express, MVC architecture |
-| **Database** | MongoDB Atlas |
+InkWire is a production-ready, fully automated AI-driven news publishing platform. It fetches global and local Indian headlines daily, employs advanced LLMs to write full-length, SEO-optimized articles, provides a sleek editorial dashboard for review and manual override, and publishes articles automatically on a daily schedule.
 
 ---
 
-## 2. Full Tech Stack
+## 🔍 Visual Workflow & Data Flow
 
-| Layer | Technology |
-|---|---|
-| Frontend | React 18, Vite 5, React Router 6, Zustand, Quill.js |
-| Backend | Node.js 18+, Express 4, node-cron |
-| Database | MongoDB Atlas (Mongoose 7) |
-| AI | Google Gemini 1.5 Flash + Groq (LLaMA 70B) |
-| News | NewsAPI + GNews + RSS Parser |
-| Images | Unsplash API |
-| Email | Nodemailer (Gmail) |
-| Auth | JWT + bcrypt |
-| Security | Helmet.js, CORS, express-rate-limit |
-| Logging | Winston |
-| Hosting | Render (backend) + Netlify (frontend) |
+Below is the architectural flow of how InkWire turns raw headlines into published articles:
 
----
-
-## 3. Prerequisites
-
-Before you start, you need:
-- **Node.js 18+** — [nodejs.org](https://nodejs.org)
-- **MongoDB Atlas account** — [mongodb.com/atlas](https://mongodb.com/atlas) (free tier is fine)
-- **API Keys** (see Section 5 below)
-
----
-
-## 4. Setup
-
-```bash
-# 1. Clone the project
-git clone [your-repo-url]
-cd inkwire
-
-# 2. Setup backend
-cd backend
-cp ../.env.example .env
-# Edit .env with your API keys (see Section 5)
-npm install
-
-# 3. Setup frontend
-cd ../frontend
-npm install
-
-# 4. Start development
-# Terminal 1 — Backend
-cd backend
-npm run dev
-
-# Terminal 2 — Frontend
-cd frontend
-npm run dev
-
-# Open http://localhost:5173
+```mermaid
+graph TD
+    A[NewsAPI / GNews / RSS Feeds] -->|Raw Headlines| B(Ranking Service)
+    B -->|Filter & Score Top 20| C(AI Writing Service)
+    C -->|Gemini / Groq + Unsplash Image| D{Review Queue / Drafts}
+    D -->|Admin Approval| E[Approved Articles]
+    E -->|Cron Scheduler| F[Published Articles]
+    F -->|Newsletter Dispatch| G[Subscribers]
+    F -->|Viewers / AdSense| H[Public Audience]
 ```
 
 ---
 
-## 5. Getting All API Keys
+## ⚡ Key Features
 
-### NewsAPI (Required — free tier)
-1. Go to [newsapi.org](https://newsapi.org) → Register
-2. Copy your API key → add to `.env` as `NEWS_API_KEY`
-3. Free tier: 100 requests/day (sufficient for 1 daily generation)
-
-### GNews (Required — free tier)
-1. Go to [gnews.io](https://gnews.io) → Register
-2. Copy your API key → add to `.env` as `GNEWS_API_KEY`
-3. Free tier: 100 requests/day
-
-### Google Gemini (Required)
-1. Go to [aistudio.google.com](https://aistudio.google.com) → Get API key
-2. Add to `.env` as `GEMINI_API_KEY`
-3. Free quota available
-
-### Groq (Recommended — fallback AI)
-1. Go to [console.groq.com](https://console.groq.com) → Register
-2. Create API key → add to `.env` as `GROQ_API_KEY`
-3. Free tier: generous limits
-
-### Unsplash (Optional — article images)
-1. Go to [unsplash.com/developers](https://unsplash.com/developers) → New Application
-2. Copy Access Key → add to `.env` as `UNSPLASH_ACCESS_KEY`
-3. Free tier: 50 requests/hour
-
-### Gmail App Password (Required for email alerts)
-1. Enable 2FA on your Gmail account
-2. Go to myaccount.google.com → Security → App Passwords
-3. Generate password for "Mail" + "Other device"
-4. Add to `.env` as `EMAIL_PASS` (NOT your real Gmail password)
-
-### MongoDB Atlas (Required)
-1. Create free cluster at [mongodb.com/atlas](https://mongodb.com/atlas)
-2. Create database user
-3. Get connection string → add to `.env` as `MONGODB_URI`
-4. Whitelist IP: `0.0.0.0/0` (or Render's IP)
+*   **📰 Smart News Crawler**: Fetches and aggregates news across 7 high-profile RSS feeds (BBC, Reuters, The Hindu, TOI, TechCrunch, NDTV, Al Jazeera) and global news search APIs.
+*   **🧠 LLM Editorial Engine**: Leverages Google Gemini 1.5 Flash (primary) and Groq LLaMA 70B (fallback) to write fully structured, long-form articles with deep analysis.
+*   **🛡️ Hardened Security Core**: 
+    *   **Cookie-based JWT Session**: JWT is stored in an `HttpOnly`, `Secure`, `SameSite=Strict` cookie, completely blocking XSS session theft.
+    *   **Mass Assignment Protection**: Strict DTO allow-lists for editorial edits.
+    *   **Request Validation**: Strict length caps on login and editorial inputs.
+    *   **Privacy & Headers**: Hardened Content Security Policy (CSP), clickjacking protection, and a restrictive Permissions-Policy.
+*   **📊 Premium Slate-900 Dashboard**: A premium Editorial Control Room styled with HSL slate-dark colors, micro-animations, real-time widgets, and automated publishing control panels.
+*   **📦 Google AdSense Ready**: Standardized responsive ad slot containers strategically integrated into article detail layouts.
 
 ---
 
-## 6. Folder Structure
+## 🛠️ Quick Start
+
+### 1. Clone & Setup Backend
+```bash
+# Clone the repository
+git clone https://github.com/26Utkarsh/InkWire.git
+cd inkwire
+
+# Configure backend environment variables
+cd backend
+cp .env.example .env
+# Edit .env and supply your API keys (see Environment Reference below)
+
+# Install dependencies and start development server
+npm install
+npm run dev
+```
+
+### 2. Setup Frontend
+```bash
+# In a new terminal tab, navigate to frontend
+cd frontend
+npm install
+npm run dev
+```
+Open **[http://localhost:5173](http://localhost:5173)** in your browser.
+
+---
+
+## 📋 Environment Variables Reference
+
+Create a `.env` file inside the `backend` directory. Below are the key configuration variables:
+
+| Variable | Required | Description |
+| :--- | :---: | :--- |
+| `MONGODB_URI` | **Yes** | MongoDB Atlas connection URI |
+| `JWT_SECRET` | **Yes** | Hexadecimal string used to sign JWT sessions |
+| `JWT_EXPIRES_IN` | **Yes** | Expiration limit for session cookie (default: `15m`) |
+| `ADMIN_EMAIL` | **Yes** | Login email for the Editorial Control Room |
+| `ADMIN_PASSWORD` | **Yes** | Login password (hashed on initial startup) |
+| `GEMINI_API_KEY` | **Yes** | Google AI Studio key (Gemini models) |
+| `GROQ_API_KEY` | *Optional* | Groq API Key (used as a backup LLM writer) |
+| `NEWS_API_KEY` | **Yes** | newsapi.org API key for headline extraction |
+| `UNSPLASH_ACCESS_KEY` | *Optional* | Access key for adding header images to articles |
+| `EMAIL_USER` | *Optional* | Gmail address used for sending editorial alerts |
+| `EMAIL_PASS` | *Optional* | Gmail App Password (NOT your account password) |
+| `EMAIL_TO` | *Optional* | Target email address to receive administrative updates |
+
+---
+
+## 📁 Project Structure
 
 ```
 inkwire/
 ├── backend/
-│   ├── server.js              Entry point
-│   ├── config/
-│   │   ├── constants.js       All magic values (no magic numbers elsewhere)
-│   │   ├── db.js              MongoDB connection
-│   │   ├── sources.config.js  All news sources
-│   │   ├── topics.config.js   Topic definitions + keywords
-│   │   └── ai.config.js       AI model config + article prompt
-│   ├── models/
-│   │   ├── Article.js         Article schema
-│   │   ├── Admin.js           Admin user schema (with lockout)
-│   │   └── Newsletter.js      Subscriber schema
-│   ├── services/
-│   │   ├── NewsService.js     Fetches headlines from all sources
-│   │   ├── AIService.js       Gemini + Groq article writing
-│   │   ├── RankingService.js  Scores + selects top 6 stories
-│   │   ├── ImageService.js    Unsplash image fetching
-│   │   ├── SchedulerService.js 5 cron jobs (generation + publishing)
-│   │   ├── EmailService.js    Admin alerts + reminders
-│   │   └── NewsletterService.js Daily digest to subscribers
-│   ├── controllers/           Business logic (no DB calls here)
-│   ├── routes/                HTTP endpoints (no logic here)
-│   ├── middleware/            JWT auth, rate limit, validation, errors
-│   └── utils/                Logger, readTime, slugify, sanitize
+│   ├── config/             # DB, sources, topics, and AI prompts configuration
+│   ├── controllers/        # Business logic endpoints (Auth, Admin, Articles, Newsletter)
+│   ├── middleware/         # Cookie parse, JWT verify, input validates, rate limits
+│   ├── models/             # Mongoose schemas (Admin, Article, Newsletter)
+│   ├── routes/             # REST route mounting point
+│   ├── services/           # Crawlers, AI Writers, Rankers, Email, and node-cron Schedulers
+│   ├── utils/              # Loggers, HTML sanitizers, readability analyzers
+│   └── server.js           # Server bootstrap entrypoint
 │
 └── frontend/
-    └── src/
-        ├── components/        Reusable React components
-        │   ├── layout/        Navbar, Footer, AdminLayout
-        │   ├── article/       ArticleCard, FeaturedCard, ArticleBody, ArticleMeta
-        │   └── ui/            Toast, Badge, Skeleton, AdSlot, NewsletterForm
-        ├── pages/             Route-level page components
-        │   └── admin/         Admin dashboard pages
-        ├── services/          API call functions
-        ├── hooks/             Custom React hooks
-        ├── store/             Zustand global state
-        └── styles/            CSS design system
+    ├── src/
+    │   ├── components/     # Layout shells, article lists, UI buttons/badges
+    │   ├── config/         # Axios config setup with withCredentials: true
+    │   ├── hooks/          # React hooks for administrative fetching
+    │   ├── pages/          # Home, Article reader, Search, and Admin panels
+    │   ├── store/          # Zustand global store (cookie-driven auth verification)
+    │   ├── styles/         # Global styles and responsive CSS variables
+    │   └── App.jsx         # App router and session bootstrapper
 ```
 
 ---
 
-## 7. How to Add a New News Source
+## 🛠️ Administrative Guides
 
-Only 3 steps — nothing else changes:
+### Adding a Custom News Source
+1.  Open [backend/config/sources.config.js](file:///C:/Users/itsut/.gemini/antigravity/scratch/inkwire/backend/config/sources.config.js).
+2.  Add your feed to the configuration array:
+    ```javascript
+    { name: 'My News Feed', url: 'https://example.com/rss.xml', topic: 'technology', credibilityScore: 85 }
+    ```
+3.  Save the changes. The crawler will ingest headlines from this feed on the next auto-generation cycle.
 
-1. Open `backend/config/sources.config.js`
-2. Add your source to the appropriate section:
-
-```javascript
-// For RSS feeds:
-{ name: 'Your Source', url: 'https://example.com/rss.xml', topic: 'world', credibilityScore: 80 }
-
-// For API sources:
-// Add enabled: true, endpoint, params, credibilityScore
-```
-
-3. Save the file — the next generation cycle will include it automatically.
-
----
-
-## 8. How to Add a New Topic
-
-Only 3 steps — nothing else changes:
-
-1. Open `backend/config/topics.config.js`
-2. Add your topic:
-
-```javascript
-{
-  id: 'sports',
-  label: 'Sports',
-  color: '#16a34a',
-  keywords: ['cricket', 'football', 'IPL', 'FIFA', 'Olympic', 'match'],
-}
-```
-
-3. Open `frontend/src/constants/index.js` and add the same topic to the `TOPICS` array.
-
-The new topic will appear in the navbar, topic pages, and article classification automatically.
+### Creating a New Editorial Category
+1.  Open [backend/config/topics.config.js](file:///C:/Users/itsut/.gemini/antigravity/scratch/inkwire/backend/config/topics.config.js).
+2.  Add the new topic object:
+    ```javascript
+    {
+      id: 'automotive',
+      label: 'Automotive',
+      color: '#eab308',
+      keywords: ['electric vehicle', 'EV', 'tesla', 'car', 'hybrid', 'concept vehicle']
+    }
+    ```
+3.  Add the same topic metadata to the corresponding constant in `frontend/src/constants/index.js` to automatically render category filters, header navigation links, and tags.
 
 ---
 
-## 9. AdSense Monetization Guide
+## 💰 AdSense Monetization Guide
 
-### Step-by-Step to Earning
+InkWire is optimized to pass AdSense reviews and start generating passive income out-of-the-box.
 
-**Phase 1: Build content (Week 1–2)**
-InkWire publishes 4–6 articles daily automatically. After 2 weeks, you'll have 20–30 articles — the minimum needed for AdSense.
-
-**Phase 2: Apply for AdSense**
-1. Go to [google.com/adsense](https://google.com/adsense)
-2. Sign in → Add site → Enter your InkWire URL
-3. Google reviews site (2–14 days)
-4. Requirements InkWire meets automatically:
-   - ✅ Original content (AI writes unique articles)
-   - ✅ Professional design
-   - ✅ About page
-   - ✅ Privacy Policy page
-   - ✅ 15+ published articles
-
-**Phase 3: Configure ad slots**
-After approval:
-1. Get your Publisher ID: `ca-pub-XXXXXXXXXXXXXXXX`
-2. Add to Netlify environment: `VITE_ADSENSE_PUBLISHER_ID=ca-pub-XXXXXXXXXXXXXXXX`
-3. Create 3 ad units in AdSense dashboard (leaderboard, rectangle, sidebar)
-4. Update slot IDs in `frontend/src/components/ui/AdSlot.jsx`
-
-**Realistic Earnings Estimate**
-
-| Traffic | Monthly Revenue |
-|---|---|
-| 500–2,000 visitors | ₹50–₹200 |
-| 5,000–10,000 visitors | ₹500–₹2,000 |
-| 50,000+ visitors | ₹5,000–₹25,000 |
+1.  **Generate Core Volume**: Allow the system to generate articles for 10-14 days. This gives you the 20-30 published posts required for AdSense approval.
+2.  **Submit Site**: Submit your domain to Google AdSense. InkWire provides custom [AboutPage](file:///C:/Users/itsut/.gemini/antigravity/scratch/inkwire/frontend/src/pages/AboutPage.jsx), [PrivacyPage](file:///C:/Users/itsut/.gemini/antigravity/scratch/inkwire/frontend/src/pages/PrivacyPage.jsx), and [TermsPage](file:///C:/Users/itsut/.gemini/antigravity/scratch/inkwire/frontend/src/pages/TermsPage.jsx) templates, satisfying all structural requirements.
+3.  **Place Ad IDs**: Once approved, set your publisher key in your deployment dashboard env (`VITE_ADSENSE_PUBLISHER_ID=ca-pub-XXXXXXXXXXXX`). The reactive frontend will automatically begin serving advertisements.
 
 ---
 
-## 10. Deployment Guide
+## 🚀 Deployment Guide
 
-### Backend → Render.com (Free)
+### Backend: Render.com
+1.  Create a **New Web Service** and connect your repo.
+2.  Set **Root Directory** to `backend`.
+3.  Configure environment variables in the Render console.
+4.  Set **Build Command** to `npm install` and **Start Command** to `node server.js`.
 
-1. Create account at [render.com](https://render.com)
-2. New Web Service → Connect your GitHub repo
-3. Settings:
-   - Build Command: `npm install`
-   - Start Command: `node server.js`
-   - Root Directory: `backend`
-4. Add all environment variables from `.env` in the Render dashboard
-5. Deploy → get your URL: `https://inkwire-api.onrender.com`
-6. Set up UptimeRobot to ping `/health` every 5 minutes (keeps free tier alive)
-
-### Frontend → Netlify (Free)
-
-1. Create account at [netlify.com](https://netlify.com)
-2. New Site → Deploy from GitHub
-3. Settings:
-   - Build Command: `npm run build`
-   - Publish Directory: `dist`
-   - Base Directory: `frontend`
-4. Add environment variable:
-   - `VITE_API_URL=https://inkwire-api.onrender.com`
-5. Deploy → get your URL: `https://inkwire.netlify.app`
-
-### Post-Deployment Checklist
-
-- [ ] Update `FRONTEND_URL` in Render env vars to your Netlify URL
-- [ ] Test admin login at `/admin/login`
-- [ ] Trigger manual generation: Dashboard → "Generate Now"
-- [ ] Approve first articles in queue
-- [ ] Submit sitemap to Google Search Console: `/api/v1/sitemap.xml`
-- [ ] Apply for Google AdSense after 20+ articles published
+### Frontend: Netlify
+1.  Create a **New Site from Git** and select your repository.
+2.  Set **Base Directory** to `frontend`.
+3.  Configure **Build Command** to `npm run build` and **Publish Directory** to `dist`.
+4.  Add `VITE_API_URL=https://your-backend-service.onrender.com` as an environment variable.
 
 ---
 
-## Environment Variables Reference
-
-| Variable | Required | Description |
-|---|---|---|
-| `MONGODB_URI` | ✅ | MongoDB Atlas connection string |
-| `JWT_SECRET` | ✅ | Random 64-byte hex string |
-| `ADMIN_EMAIL` | ✅ | Your admin login email |
-| `ADMIN_PASSWORD` | ✅ | Your admin password (hashed on first run) |
-| `GEMINI_API_KEY` | ✅ | Google AI Studio API key |
-| `NEWS_API_KEY` | ✅ | newsapi.org API key |
-| `GROQ_API_KEY` | ⚠️ | Groq API key (fallback AI — recommended) |
-| `GNEWS_API_KEY` | ⚠️ | GNews API key (additional headlines) |
-| `UNSPLASH_ACCESS_KEY` | ⚠️ | Unsplash API key (article images) |
-| `EMAIL_USER` | ⚠️ | Gmail address for alerts |
-| `EMAIL_PASS` | ⚠️ | Gmail App Password |
-| `EMAIL_TO` | ⚠️ | Where admin alerts are sent |
-
----
-
-*Built with ❤️ using React, Node.js, MongoDB, and Google Gemini AI*
+*Built with ❤️ using React, Node.js, MongoDB Atlas, and Google Gemini AI.*
