@@ -1,17 +1,18 @@
 /**
  * @fileoverview article.controller.js — Public article CRUD controller for InkWire.
- * Business logic for public-facing article endpoints only.
+ * SECURITY: Never exposes raw err.message to client — all 500s use generic message.
+ *           Search query is capped at 100 chars to prevent ReDoS via text index.
  */
 
 import { Article } from '../models/Article.js';
 import { logger } from '../utils/logger.js';
 import { ARTICLE } from '../config/constants.js';
 
+/** Generic safe message returned on all 500 errors — never leaks DB details */
+const INTERNAL_ERROR = 'Internal server error';
+
 /**
  * Get all published articles with pagination
- * @param {import('express').Request} req
- * @param {import('express').Response} res
- * @returns {Promise<void>}
  */
 export const getArticles = async (req, res) => {
   try {
@@ -36,15 +37,12 @@ export const getArticles = async (req, res) => {
     });
   } catch (err) {
     logger.error(`[CONTROLLER] getArticles: ${err.message}`);
-    res.status(500).json({ success: false, message: err.message });
+    res.status(500).json({ success: false, message: INTERNAL_ERROR });
   }
 };
 
 /**
  * Get single article by slug and increment view count
- * @param {import('express').Request} req
- * @param {import('express').Response} res
- * @returns {Promise<void>}
  */
 export const getArticleBySlug = async (req, res) => {
   try {
@@ -61,15 +59,12 @@ export const getArticleBySlug = async (req, res) => {
     return res.json({ success: true, data: article });
   } catch (err) {
     logger.error(`[CONTROLLER] getArticleBySlug: ${err.message}`);
-    return res.status(500).json({ success: false, message: err.message });
+    return res.status(500).json({ success: false, message: INTERNAL_ERROR });
   }
 };
 
 /**
  * Get published articles filtered by topic
- * @param {import('express').Request} req
- * @param {import('express').Response} res
- * @returns {Promise<void>}
  */
 export const getArticlesByTopic = async (req, res) => {
   try {
@@ -90,22 +85,23 @@ export const getArticlesByTopic = async (req, res) => {
     res.json({ success: true, data: articles, pagination: { page, limit, total } });
   } catch (err) {
     logger.error(`[CONTROLLER] getArticlesByTopic: ${err.message}`);
-    res.status(500).json({ success: false, message: err.message });
+    res.status(500).json({ success: false, message: INTERNAL_ERROR });
   }
 };
 
 /**
- * Full-text search across published articles
- * @param {import('express').Request} req
- * @param {import('express').Response} res
- * @returns {Promise<void>}
+ * Full-text search across published articles.
+ * SECURITY: Query capped at 100 chars to prevent ReDoS against MongoDB text index.
  */
 export const searchArticles = async (req, res) => {
   try {
-    const query = req.query.q?.trim();
-    if (!query || query.length < 2) {
+    const rawQuery = req.query.q?.trim();
+    if (!rawQuery || rawQuery.length < 2) {
       return res.status(400).json({ success: false, message: 'Search query must be at least 2 characters' });
     }
+
+    // Cap length — prevents excessively long queries from hitting the text index
+    const query = rawQuery.slice(0, 100);
 
     const articles = await Article.find(
       { $text: { $search: query }, status: 'published' },
@@ -119,22 +115,20 @@ export const searchArticles = async (req, res) => {
     return res.json({ success: true, data: articles, count: articles.length });
   } catch (err) {
     logger.error(`[CONTROLLER] searchArticles: ${err.message}`);
-    return res.status(500).json({ success: false, message: err.message });
+    return res.status(500).json({ success: false, message: INTERNAL_ERROR });
   }
 };
 
 /**
- * Get featured article (most recent published)
- * @param {import('express').Request} req
- * @param {import('express').Response} res
- * @returns {Promise<void>}
+ * Get featured article (pinned or most recent published)
  */
 export const getFeaturedArticle = async (req, res) => {
   try {
-    const article = await Article.findOne({ status: 'published' })
-      .sort({ publishedAt: -1 })
-      .select('-body')
-      .lean();
+    // Try pinned first, fall back to most recent
+    const article = await Article.findOne({ status: 'published', isFeatured: true })
+      .select('-body').lean()
+      || await Article.findOne({ status: 'published' })
+        .sort({ publishedAt: -1 }).select('-body').lean();
 
     if (!article) {
       return res.status(404).json({ success: false, message: 'No published articles found' });
@@ -143,15 +137,12 @@ export const getFeaturedArticle = async (req, res) => {
     return res.json({ success: true, data: article });
   } catch (err) {
     logger.error(`[CONTROLLER] getFeaturedArticle: ${err.message}`);
-    return res.status(500).json({ success: false, message: err.message });
+    return res.status(500).json({ success: false, message: INTERNAL_ERROR });
   }
 };
 
 /**
  * Get articles by date (archive)
- * @param {import('express').Request} req
- * @param {import('express').Response} res
- * @returns {Promise<void>}
  */
 export const getArticlesByDate = async (req, res) => {
   try {
@@ -176,15 +167,12 @@ export const getArticlesByDate = async (req, res) => {
     return res.json({ success: true, data: articles });
   } catch (err) {
     logger.error(`[CONTROLLER] getArticlesByDate: ${err.message}`);
-    return res.status(500).json({ success: false, message: err.message });
+    return res.status(500).json({ success: false, message: INTERNAL_ERROR });
   }
 };
 
 /**
  * Mark article as read (scrolled 80%+ → increment readCount)
- * @param {import('express').Request} req
- * @param {import('express').Response} res
- * @returns {Promise<void>}
  */
 export const markArticleRead = async (req, res) => {
   try {
@@ -195,6 +183,6 @@ export const markArticleRead = async (req, res) => {
     res.json({ success: true });
   } catch (err) {
     logger.error(`[CONTROLLER] markArticleRead: ${err.message}`);
-    res.status(500).json({ success: false, message: err.message });
+    res.status(500).json({ success: false, message: INTERNAL_ERROR });
   }
 };

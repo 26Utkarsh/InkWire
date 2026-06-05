@@ -1,12 +1,14 @@
 /**
  * @fileoverview server.js — Express application entry point for InkWire backend.
- * Initializes middleware, mounts routes, connects to DB, starts scheduler.
+ * SECURITY HARDENING: cookie-parser, strict CSP with font-src/frame-ancestors/formAction,
+ * Permissions-Policy, layered rate limits.
  */
 
 import 'dotenv/config';
 import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import hpp from 'hpp';
 import mongoSanitize from 'express-mongo-sanitize';
 import { connectDB } from './config/db.js';
@@ -22,25 +24,48 @@ const app = express();
 /** Disable X-Powered-By to hide server technology */
 app.disable('x-powered-by');
 
-/** Apply comprehensive security headers via Helmet */
+// ── Trust proxy for rate-limit IP detection (Render, Heroku, etc.) ──────────
+app.set('trust proxy', 1);
+
+/** Comprehensive security headers via Helmet */
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'", 'data:', 'https://images.unsplash.com', 'https://pagead2.googlesyndication.com'],
-      connectSrc: ["'self'"],
-      frameSrc: ["'none'"],
-      objectSrc: ["'none'"],
+      defaultSrc:      ["'self'"],
+      scriptSrc:       ["'self'", 'https://pagead2.googlesyndication.com'],
+      styleSrc:        ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+      fontSrc:         ["'self'", 'https://fonts.gstatic.com'],
+      imgSrc:          [
+        "'self'", 'data:',
+        'https://images.unsplash.com',
+        'https://pagead2.googlesyndication.com',
+      ],
+      connectSrc:      ["'self'"],
+      frameSrc:        ["'none'"],
+      frameAncestors:  ["'none'"],           // ← prevents clickjacking via iframes
+      objectSrc:       ["'none'"],
+      formAction:      ["'self'"],           // ← form submissions only to own origin
       upgradeInsecureRequests: [],
     },
   },
-  hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
-  noSniff: true,
+  hsts: {
+    maxAge: 31536000,        // 1 year
+    includeSubDomains: true,
+    preload: true,
+  },
+  noSniff: true,             // X-Content-Type-Options: nosniff
   frameguard: { action: 'deny' },
   referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
 }));
+
+/** Permissions-Policy — disable unused browser features (camera, microphone, geolocation) */
+app.use((_req, res, next) => {
+  res.setHeader(
+    'Permissions-Policy',
+    'camera=(), microphone=(), geolocation=(), payment=(), usb=()'
+  );
+  next();
+});
 
 /** Configure CORS — only accept requests from known frontend origin */
 app.use(cors({
@@ -51,7 +76,7 @@ app.use(cors({
     if (!origin || allowed.includes(origin.replace(/\/$/, ''))) return callback(null, true);
     return callback(new Error('CORS: Origin not allowed'));
   },
-  credentials: true,
+  credentials: true,           // ← required for cookies to be sent cross-origin
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
@@ -60,7 +85,10 @@ app.use(cors({
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
-/** Sanitize MongoDB query injection */
+/** Parse cookies — required for HttpOnly JWT cookie reading */
+app.use(cookieParser());
+
+/** Sanitize MongoDB query injection (strip $ and . from user input keys) */
 app.use(mongoSanitize());
 
 /** Prevent HTTP parameter pollution */
@@ -72,20 +100,17 @@ app.use('/api', rateLimiter);
 /** Mount API routes */
 app.use('/api/v1', apiRouter);
 
-/** Health check endpoint */
+/** Health check — no auth required */
 app.get('/health', (_req, res) => {
   res.status(200).json({ status: 'alive', timestamp: new Date().toISOString() });
 });
 
-/** 404 handler — catches undefined routes */
+/** 404 handler */
 app.use(notFoundHandler);
 
 /** Global error handler — must be last */
 app.use(errorHandler);
 
-/**
- * Bootstrap the application — connect DB, start scheduler, listen
- */
 const bootstrap = async () => {
   try {
     await connectDB();

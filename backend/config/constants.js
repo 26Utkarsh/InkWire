@@ -14,7 +14,7 @@ export const DB = {
 };
 
 export const AUTH = {
-  JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '7d',
+  JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '15m',
   BCRYPT_ROUNDS: 12,
   MAX_LOGIN_ATTEMPTS: 5,
   LOCKOUT_MINUTES: 15,

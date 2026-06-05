@@ -198,22 +198,39 @@ export const togglePin = async (req, res) => {
   }
 };
 
-/** Edit article content */
+/** Edit article content — strict DTO allow-list (mass assignment protection) */
 export const editArticle = async (req, res) => {
   try {
+    /**
+     * SECURITY: Explicit allow-list — only these 5 fields can be updated.
+     * Any other properties in req.body (e.g. status, isFeatured, views) are silently ignored.
+     * This prevents mass assignment attacks where an attacker crafts payloads with
+     * hidden schema fields like { "isAdmin": true } or { "views": 9999999 }.
+     */
     const { headline, subheadline, body, tags, approve } = req.body;
+
+    // Type-check each allowed field before using it
+    if (!headline || typeof headline !== 'string') {
+      return res.status(400).json({ success: false, message: 'Valid headline required' });
+    }
+    if (!body || typeof body !== 'string') {
+      return res.status(400).json({ success: false, message: 'Valid body required' });
+    }
+
     const sanitizedBody = sanitizeArticleHTML(body);
     const wordCount = countWords(sanitizedBody);
 
+    // Build update object from only the explicitly allowed fields
     const update = {
-      headline: headline?.trim(),
-      subheadline: subheadline?.trim(),
-      body: sanitizedBody,
-      tags: Array.isArray(tags) ? tags : [],
+      headline:      headline.trim().slice(0, 500),
+      subheadline:   typeof subheadline === 'string' ? subheadline.trim().slice(0, 500) : '',
+      body:          sanitizedBody,
+      tags:          Array.isArray(tags) ? tags.slice(0, 20).map(String) : [],
       wordCount,
-      readTime: calculateReadTime(wordCount),
+      readTime:      calculateReadTime(wordCount),
       editedByAdmin: true,
-      ...(approve && { status: 'approved' }),
+      // Only allow status change to 'approved', never to arbitrary values
+      ...(approve === true && { status: 'approved' }),
     };
 
     const article = await Article.findByIdAndUpdate(req.params.id, update, { new: true });

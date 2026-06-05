@@ -1,29 +1,54 @@
 /**
  * @fileoverview useAppStore.js — Zustand global state store for InkWire frontend.
+ * SECURITY: JWT token is no longer stored in localStorage or in any JS-accessible location.
+ * The HttpOnly cookie is managed entirely by the browser and sent automatically on every request.
+ * `isAuthenticated` is determined by a server-side /auth/verify call, not by inspecting a token.
  */
 
 import { create } from 'zustand';
+import { api } from '../config/api.js';
 
 const useAppStore = create((set, get) => ({
   // === AUTH ===
-  token: localStorage.getItem('inkwire_token') || null,
-  isAuthenticated: !!localStorage.getItem('inkwire_token'),
+  isAuthenticated: false,
+  adminEmail: null,
+  checkingAuth: true,
 
   /**
-   * Set JWT token and persist to localStorage
-   * @param {string} token
+   * Mark session as authenticated (called after login success)
+   * @param {string} email
    */
-  setToken: (token) => {
-    localStorage.setItem('inkwire_token', token);
-    set({ token, isAuthenticated: true });
+  setAuthenticated: (email) => {
+    set({ isAuthenticated: true, adminEmail: email, checkingAuth: false });
   },
 
   /**
-   * Clear auth state and localStorage
+   * Clear auth state — the HttpOnly cookie is cleared by calling POST /auth/logout
    */
-  logout: () => {
-    localStorage.removeItem('inkwire_token');
-    set({ token: null, isAuthenticated: false });
+  logout: async () => {
+    try {
+      await api.post('/auth/logout');
+    } catch (err) {
+      console.error('Logout request failed:', err);
+    } finally {
+      set({ isAuthenticated: false, adminEmail: null });
+    }
+  },
+
+  /**
+   * Check if user is authenticated via backend
+   */
+  checkAuth: async () => {
+    try {
+      const res = await api.get('/auth/verify');
+      if (res.data?.success) {
+        set({ isAuthenticated: true, adminEmail: res.data.admin.email, checkingAuth: false });
+      } else {
+        set({ isAuthenticated: false, adminEmail: null, checkingAuth: false });
+      }
+    } catch (err) {
+      set({ isAuthenticated: false, adminEmail: null, checkingAuth: false });
+    }
   },
 
   // === TOASTS ===

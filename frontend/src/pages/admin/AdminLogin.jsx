@@ -14,7 +14,8 @@ const AdminLogin = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const { setToken, isAuthenticated } = useAppStore();
+  const setAuthenticated = useAppStore((s) => s.setAuthenticated);
+  const isAuthenticated = useAppStore((s) => s.isAuthenticated);
   const navigate = useNavigate();
 
   if (isAuthenticated) {
@@ -33,8 +34,12 @@ const AdminLogin = () => {
     try {
       setLoading(true);
       const res = await api.post('/auth/login', { email, password });
-      setToken(res.data.token);
-      navigate('/admin/dashboard');
+      if (res.data?.success) {
+        setAuthenticated(res.data.admin.email);
+        navigate('/admin/dashboard');
+      } else {
+        setError(res.data?.message || 'Login failed.');
+      }
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed. Check your credentials.');
     } finally {
