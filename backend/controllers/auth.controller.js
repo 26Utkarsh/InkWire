@@ -13,10 +13,13 @@ import { AUTH } from '../config/constants.js';
 export const AUTH_COOKIE = 'inkwire_admin_token';
 
 /** Cookie options — HttpOnly blocks JS access, Secure forces HTTPS, SameSite=Strict prevents CSRF */
+const isProd = process.env.NODE_ENV === 'production';
+
+/** Cookie options — HttpOnly blocks JS access, Secure forces HTTPS, SameSite controls cross-origin sending */
 const COOKIE_OPTIONS = {
   httpOnly: true,                                  // ← cannot be read by JavaScript (blocks XSS theft)
-  secure: process.env.NODE_ENV === 'production',   // ← HTTPS only in production
-  sameSite: 'strict',                              // ← blocks cross-site request forgery
+  secure: isProd,                                  // ← HTTPS only in production (required for SameSite=None)
+  sameSite: isProd ? 'none' : 'lax',               // ← 'none' for cross-site production, 'lax' for local development
   maxAge: 15 * 60 * 1000,                          // ← 15 minutes, matches JWT expiry
   path: '/',
 };
