@@ -6,7 +6,7 @@ import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useAdminStats } from '../../hooks/useAdmin.js';
 import AdminLayout from '../../components/layout/AdminLayout.jsx';
-import { triggerGeneration, sendNewsletter, triggerPublish, generateCustomArticle, wikiSearch, wikiImport } from '../../services/adminService.js';
+import { triggerGeneration, sendNewsletter, triggerPublish, generateCustomArticle, wikiSearch, wikiImport, getSuggestedHeadlines } from '../../services/adminService.js';
 import useAppStore from '../../store/useAppStore.js';
 import './AdminDashboard.css';
 
@@ -43,9 +43,29 @@ const AdminDashboard = () => {
   const [wikiCategory, setWikiCategory] = useState('india');
   const [selectedWiki, setSelectedWiki] = useState(null);
 
+  // News Suggestions states
+  const [newsSuggestions, setNewsSuggestions] = useState([]);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(timer);
+  }, []);
+
+  const fetchSuggestions = async () => {
+    try {
+      setLoadingSuggestions(true);
+      const res = await getSuggestedHeadlines();
+      setNewsSuggestions(res.data || []);
+    } catch (err) {
+      console.warn('Failed to load news suggestions', err);
+    } finally {
+      setLoadingSuggestions(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSuggestions();
   }, []);
 
   const formattedTime = time.toLocaleTimeString('en-US', {
@@ -116,7 +136,24 @@ const AdminDashboard = () => {
     try {
       setSearchingWiki(true);
       setSelectedWiki(null);
-      const res = await wikiSearch(wikiQuery.trim());
+
+      let res;
+      try {
+        res = await wikiSearch(wikiQuery.trim());
+      } catch (backendErr) {
+        console.warn('Backend Wikipedia search failed, attempting direct client-side fetch...', backendErr);
+        const directRes = await fetch(`https://en.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(wikiQuery.trim())}&limit=10&format=json&origin=*`);
+        const data = await directRes.json();
+        const [, titles, descriptions, urls] = data;
+        res = {
+          data: (titles || []).map((title, i) => ({
+            title,
+            description: descriptions?.[i] || '',
+            url: urls?.[i] || '',
+          }))
+        };
+      }
+
       setWikiResults(res.data || []);
       if (res.data?.length === 0) {
         addToast('No Wikipedia articles found', 'warning');
@@ -269,6 +306,34 @@ const AdminDashboard = () => {
                     required
                   />
                 </div>
+
+                {loadingSuggestions ? (
+                  <div className="suggestions-loading">
+                    <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" style={{ marginRight: '8px' }}></span>
+                    Loading trending headlines...
+                  </div>
+                ) : (
+                  newsSuggestions.length > 0 && (
+                    <div className="form-group">
+                      <label className="form-label suggestions-label">💡 Suggested Topics from Latest News</label>
+                      <div className="suggestions-container">
+                        {newsSuggestions.map((item, i) => (
+                          <button
+                            key={i}
+                            type="button"
+                            className="suggestion-pill"
+                            onClick={() => {
+                              setCustomTopic(item.title);
+                              setCustomCategory(item.topic || 'india');
+                            }}
+                          >
+                            <span className="suggestion-pill-source">[{item.source}]</span> {item.title}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                )}
 
                 <div className="form-row">
                   <div className="form-group flex-1">

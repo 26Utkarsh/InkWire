@@ -12,7 +12,7 @@ import {
   editArticle, unpublishArticle, deleteArticle,
   togglePin, updateSlot,
   triggerGeneration, triggerPublish, testEmail,
-  generateCustomArticle, wikiSearch, wikiImport,
+  generateCustomArticle, wikiSearch, wikiImport, getSuggestedHeadlines,
 } from '../controllers/admin.controller.js';
 import { sendNewsletter } from '../controllers/newsletter.controller.js';
 
@@ -26,6 +26,7 @@ adminRouter.get('/queue',        getQueue);
 adminRouter.get('/published',    getPublished);
 adminRouter.get('/stats',        getStats);
 adminRouter.get('/subscribers',  getSubscribers);
+adminRouter.get('/suggested-headlines', getSuggestedHeadlines);
 
 /** ── Single article actions ────────────────────────── */
 adminRouter.put('/articles/:id/approve',   approveArticle);

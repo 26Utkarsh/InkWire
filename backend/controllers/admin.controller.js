@@ -10,6 +10,7 @@ import { ARTICLE } from '../config/constants.js';
 import { writeCustomArticle, writeArticleFromWiki } from '../services/AIService.js';
 import { fetchImage } from '../services/ImageService.js';
 import { createSlug } from '../utils/slugify.js';
+import { fetchAllHeadlines } from '../services/NewsService.js';
 
 const VALID_SLOTS = ['morning', 'afternoon', 'evening'];
 
@@ -403,7 +404,7 @@ export const wikiSearch = async (req, res) => {
         origin: '*'
       },
       headers: {
-        'User-Agent': 'InkWireNewsBot/1.0 (admin@inkwire.com)'
+        'User-Agent': 'InkWire/1.0 (contact@inkwire.com; editorial@inkwire.com)'
       },
       timeout: 5000
     });
@@ -446,7 +447,7 @@ export const wikiImport = async (req, res) => {
         origin: '*'
       },
       headers: {
-        'User-Agent': 'InkWireNewsBot/1.0 (admin@inkwire.com)'
+        'User-Agent': 'InkWire/1.0 (contact@inkwire.com; editorial@inkwire.com)'
       },
       timeout: 8000
     });
@@ -512,4 +513,28 @@ export const wikiImport = async (req, res) => {
     return res.status(500).json({ success: false, message: `Failed to import Wikipedia page: ${err.message}` });
   }
 };
+
+/** Fetch live suggested headlines from news feeds */
+export const getSuggestedHeadlines = async (req, res) => {
+  try {
+    logger.info('[ADMIN] Fetching suggested headlines for custom article creation');
+    const headlines = await fetchAllHeadlines();
+    
+    // Filter out very short or empty headlines, map to clean details and take top 8
+    const suggestions = headlines
+      .filter((h) => h.title && h.title.trim().length > 25)
+      .slice(0, 8)
+      .map((h) => ({
+        title: h.title.trim(),
+        source: h.source || 'News Feed',
+        topic: h.topic || 'india',
+      }));
+
+    return res.json({ success: true, data: suggestions });
+  } catch (err) {
+    logger.error(`[ADMIN] getSuggestedHeadlines: ${err.message}`);
+    return res.status(500).json({ success: false, message: 'Failed to fetch suggested headlines' });
+  }
+};
+
 

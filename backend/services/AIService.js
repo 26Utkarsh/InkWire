@@ -239,7 +239,7 @@ const fetchWikiContext = async (term) => {
         origin: '*'
       },
       headers: {
-        'User-Agent': 'InkWireNewsBot/1.0 (admin@inkwire.com)'
+        'User-Agent': 'InkWire/1.0 (contact@inkwire.com; editorial@inkwire.com)'
       },
       timeout: 5000
     });
@@ -261,7 +261,7 @@ const fetchWikiContext = async (term) => {
         origin: '*'
       },
       headers: {
-        'User-Agent': 'InkWireNewsBot/1.0 (admin@inkwire.com)'
+        'User-Agent': 'InkWire/1.0 (contact@inkwire.com; editorial@inkwire.com)'
       },
       timeout: 5000
     });

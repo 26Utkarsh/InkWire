@@ -307,16 +307,15 @@
   .quick-ai-summary-box {
     padding: var(--sp-4) var(--sp-5);
     margin-bottom: var(--sp-5);
-    border-radius: 0;
-    border-left: none;
-    border-right: none;
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(99, 102, 241, 0.15);
   }
   
   .summary-badge {
-    margin-left: 0;
-    margin-top: 4px;
-    width: 100%;
-    text-align: center;
+    margin-left: auto;
+    margin-top: 0;
+    width: auto;
+    text-align: right;
   }
 }
 

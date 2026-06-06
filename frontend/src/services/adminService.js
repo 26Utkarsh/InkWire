@@ -32,3 +32,4 @@ export const sendTestEmail     = async ()     => (await api.post('/admin/test-em
 export const generateCustomArticle = async (data) => (await api.post('/admin/generate-custom', data)).data;
 export const wikiSearch = async (query) => (await api.get('/admin/wiki/search', { params: { query } })).data;
 export const wikiImport = async (data) => (await api.post('/admin/wiki/import', data)).data;
+export const getSuggestedHeadlines = async () => (await api.get('/admin/suggested-headlines')).data;
