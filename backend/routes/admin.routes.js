@@ -12,6 +12,7 @@ import {
   editArticle, unpublishArticle, deleteArticle,
   togglePin, updateSlot,
   triggerGeneration, triggerPublish, testEmail,
+  generateCustomArticle,
 } from '../controllers/admin.controller.js';
 import { sendNewsletter } from '../controllers/newsletter.controller.js';
 
@@ -41,6 +42,7 @@ adminRouter.post('/articles/bulk-reject',  bulkReject);
 
 /** ── Automation controls ───────────────────────────── */
 adminRouter.post('/generate',          triggerGeneration);
+adminRouter.post('/generate-custom',   generateCustomArticle);
 adminRouter.post('/publish',           triggerPublish);
 adminRouter.post('/newsletter/send',   sendNewsletter);
 adminRouter.post('/test-email',        testEmail);

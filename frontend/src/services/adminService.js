@@ -29,3 +29,4 @@ export const triggerGeneration = async ()     => (await api.post('/admin/generat
 export const triggerPublish    = async (slot) => (await api.post('/admin/publish', { slot })).data;
 export const sendNewsletter    = async ()     => (await api.post('/admin/newsletter/send')).data;
 export const sendTestEmail     = async ()     => (await api.post('/admin/test-email')).data;
+export const generateCustomArticle = async (data) => (await api.post('/admin/generate-custom', data)).data;

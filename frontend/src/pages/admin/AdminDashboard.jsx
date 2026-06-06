@@ -6,7 +6,7 @@ import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useAdminStats } from '../../hooks/useAdmin.js';
 import AdminLayout from '../../components/layout/AdminLayout.jsx';
-import { triggerGeneration, sendNewsletter, triggerPublish } from '../../services/adminService.js';
+import { triggerGeneration, sendNewsletter, triggerPublish, generateCustomArticle } from '../../services/adminService.js';
 import useAppStore from '../../store/useAppStore.js';
 import './AdminDashboard.css';
 
@@ -26,6 +26,13 @@ const AdminDashboard = () => {
   const { stats, loading } = useAdminStats();
   const addToast = useAppStore((s) => s.addToast);
   const [time, setTime] = useState(new Date());
+
+  // Custom AI article form states
+  const [customTopic, setCustomTopic] = useState('');
+  const [customCategory, setCustomCategory] = useState('india');
+  const [customImageUrl, setCustomImageUrl] = useState('');
+  const [customImageCredit, setCustomImageCredit] = useState('');
+  const [generatingCustom, setGeneratingCustom] = useState(false);
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
@@ -63,6 +70,33 @@ const AdminDashboard = () => {
       addToast(`🚀 Publishing triggered for ${slot} slot!`, 'success');
     } catch {
       addToast(`Failed to publish ${slot} slot`, 'error');
+    }
+  };
+
+  const handleCustomGenerate = async (e) => {
+    e.preventDefault();
+    if (!customTopic.trim()) {
+      addToast('Please enter a topic description', 'error');
+      return;
+    }
+
+    try {
+      setGeneratingCustom(true);
+      await generateCustomArticle({
+        prompt: customTopic,
+        topic: customCategory,
+        imageUrl: customImageUrl,
+        imageCredit: customImageCredit
+      });
+      addToast('✨ Custom article generated successfully! Added to Review Queue.', 'success');
+      setCustomTopic('');
+      setCustomImageUrl('');
+      setCustomImageCredit('');
+    } catch (err) {
+      const errorMsg = err.response?.data?.message || 'Failed to generate custom article';
+      addToast(errorMsg, 'error');
+    } finally {
+      setGeneratingCustom(false);
     }
   };
 
@@ -156,8 +190,87 @@ const AdminDashboard = () => {
           </div>
         </section>
 
+        {/* Custom AI Article Generator (Premium Card) */}
+        <section className="dashboard-section animate-fade-in delay-3">
+          <h2 className="dashboard-section-title">⚡ Generate Custom Article via AI</h2>
+          <div className="custom-gen-card">
+            <form onSubmit={handleCustomGenerate} className="custom-gen-form">
+              <div className="form-group">
+                <label htmlFor="custom-topic" className="form-label">Topic Description / Instructions</label>
+                <textarea
+                  id="custom-topic"
+                  className="form-control form-textarea"
+                  placeholder="Describe the topic in detail (e.g. 'Rahul Gandhi visiting Andaman islands and showing us the risks of cutting down 1.5 crore trees and serious threat to coral reefs by the Great Nicobar project')..."
+                  value={customTopic}
+                  onChange={(e) => setCustomTopic(e.target.value)}
+                  rows="4"
+                  required
+                />
+              </div>
+
+              <div className="form-row">
+                <div className="form-group flex-1">
+                  <label htmlFor="custom-category" className="form-label">Category</label>
+                  <select
+                    id="custom-category"
+                    className="form-control form-select"
+                    value={customCategory}
+                    onChange={(e) => setCustomCategory(e.target.value)}
+                  >
+                    <option value="india">India</option>
+                    <option value="world">World</option>
+                    <option value="politics">Politics</option>
+                    <option value="business">Business</option>
+                    <option value="technology">Technology</option>
+                    <option value="science">Science</option>
+                  </select>
+                </div>
+
+                <div className="form-group flex-2">
+                  <label htmlFor="custom-image-url" className="form-label">Custom Image URL (Optional)</label>
+                  <input
+                    type="url"
+                    id="custom-image-url"
+                    className="form-control"
+                    placeholder="https://images.unsplash.com/..."
+                    value={customImageUrl}
+                    onChange={(e) => setCustomImageUrl(e.target.value)}
+                  />
+                </div>
+
+                <div className="form-group flex-1">
+                  <label htmlFor="custom-image-credit" className="form-label">Image Credit (Optional)</label>
+                  <input
+                    type="text"
+                    id="custom-image-credit"
+                    className="form-control"
+                    placeholder="Photo via Rahul Gandhi on X"
+                    value={customImageCredit}
+                    onChange={(e) => setCustomImageCredit(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                className="btn btn-primary btn-submit-gen"
+                disabled={generatingCustom}
+              >
+                {generatingCustom ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" style={{ marginRight: '8px' }}></span>
+                    Generating Draft...
+                  </>
+                ) : (
+                  '⚡ Write & Add Draft to Queue'
+                )}
+              </button>
+            </form>
+          </div>
+        </section>
+
         {/* Manual Publishing Overrides (Premium Control Center) */}
-        <section className="dashboard-section control-center-panel animate-fade-in delay-3">
+        <section className="dashboard-section control-center-panel animate-fade-in delay-4">
           <h2 className="dashboard-section-title control-center-title">🚀 Manual Publishing Console</h2>
           <p className="control-center-desc">
             Normally, articles approved in the queue will publish automatically at their scheduled times (8 AM, 1 PM, or 7 PM IST). Use these buttons to force-publish all approved articles in a specific slot instantly:

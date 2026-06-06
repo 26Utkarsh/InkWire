@@ -11,6 +11,9 @@ import { sanitizeArticleHTML } from '../utils/sanitize.js';
 import { countWords, calculateReadTime } from '../utils/readTime.js';
 import { logger } from '../utils/logger.js';
 import { ARTICLE } from '../config/constants.js';
+import { writeCustomArticle } from '../services/AIService.js';
+import { fetchImage } from '../services/ImageService.js';
+import { createSlug } from '../utils/slugify.js';
 
 const VALID_SLOTS = ['morning', 'afternoon', 'evening'];
 
@@ -324,3 +327,65 @@ export const getSubscribers = async (req, res) => {
     res.status(500).json({ success: false, message: 'Failed to load subscribers' });
   }
 };
+
+/** Generate a custom article based on AI prompt and input parameters */
+export const generateCustomArticle = async (req, res) => {
+  try {
+    const { prompt, topic = 'india', imageUrl, imageCredit, slot } = req.body;
+
+    if (!prompt || typeof prompt !== 'string' || !prompt.trim()) {
+      return res.status(400).json({ success: false, message: 'Prompt/Topic description is required' });
+    }
+
+    logger.info(`[ADMIN] Custom article generation requested for topic: ${topic}`);
+
+    // Generate the article contents using the AI service
+    const articleData = await writeCustomArticle(topic, prompt.trim());
+
+    // Resolve the image url and credit: use user-provided or fallback to Unsplash
+    let finalImageUrl = imageUrl;
+    let finalImageCredit = imageCredit;
+
+    if (!finalImageUrl) {
+      const imageData = await fetchImage(topic, articleData.headline);
+      finalImageUrl = imageData.url;
+      finalImageCredit = imageData.credit;
+    } else if (!finalImageCredit) {
+      finalImageCredit = 'Photo via Editor';
+    }
+
+    const sanitizedBody = sanitizeArticleHTML(articleData.body);
+    const words = countWords(sanitizedBody);
+    const readTime = calculateReadTime(words);
+    const slug = createSlug(articleData.headline);
+
+    const generatedAt = new Date();
+    const reviewDeadline = new Date(generatedAt.getTime() + 30 * 60 * 1000);
+
+    const article = await Article.create({
+      headline: articleData.headline,
+      subheadline: articleData.subheadline,
+      slug,
+      body: sanitizedBody,
+      summary: articleData.summary,
+      tags: articleData.tags,
+      topic: articleData.topic,
+      wordCount: words,
+      readTime,
+      imageUrl: finalImageUrl,
+      imageCredit: finalImageCredit,
+      sources: articleData.sources,
+      scheduledFor: slot || 'morning', // default to morning slot
+      status: 'draft',
+      generatedAt,
+      reviewDeadline,
+    });
+
+    logger.info(`[ADMIN] Custom article draft saved: "${article.headline}"`);
+    return res.json({ success: true, data: article });
+  } catch (err) {
+    logger.error(`[ADMIN] generateCustomArticle: ${err.message}`);
+    return res.status(500).json({ success: false, message: `Failed to generate custom article: ${err.message}` });
+  }
+};
+

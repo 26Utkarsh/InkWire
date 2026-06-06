@@ -4,7 +4,7 @@
  */
 
 import axios from 'axios';
-import { AI_CONFIG, buildArticlePrompt } from '../config/ai.config.js';
+import { AI_CONFIG, buildArticlePrompt, buildCustomArticlePrompt } from '../config/ai.config.js';
 import { logger } from '../utils/logger.js';
 import { AI } from '../config/constants.js';
 
@@ -214,3 +214,86 @@ export const writeArticle = async (story) => {
     aiProvider: provider,
   };
 };
+
+/**
+ * Write a custom article from a topic prompt using AI
+ * Tries Gemini first, falls back to Groq automatically
+ * @param {string} topic - Category/topic (e.g. 'india', 'world')
+ * @param {string} customPrompt - Custom topic/instructions
+ * @returns {Promise<object>} Structured article data ready for DB
+ */
+export const writeCustomArticle = async (topic, customPrompt) => {
+  const prompt = buildCustomArticlePrompt(topic, customPrompt);
+  let rawText;
+  let provider = 'gemini';
+
+  try {
+    rawText = await callGemini(prompt);
+    logger.info(`[AI] Gemini 2.5 Flash (Key 1) for Custom Topic: ${topic}`);
+  } catch (err1) {
+    logger.warn(`[AI] Key 1 failed for Custom Topic (${err1.message}) — trying Key 2`);
+    try {
+      const key2 = process.env.GEMINI_API_KEY_2;
+      if (!key2) throw new Error('GEMINI_API_KEY_2 not set');
+      const res2 = await axios.post(
+        `${AI_CONFIG.PRIMARY.endpoint}?key=${key2}`,
+        {
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            temperature: AI.TEMPERATURE,
+            maxOutputTokens: 8192,
+            thinkingConfig: {
+              thinkingBudget: 0
+            }
+          }
+        },
+        { timeout: AI.REQUEST_TIMEOUT_MS }
+      );
+      rawText = res2.data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!rawText) throw new Error('Empty response from Gemini Key 2');
+      provider = 'gemini-key2';
+      logger.info(`[AI] Gemini 2.5 Flash (Key 2) for Custom Topic: ${topic}`);
+    } catch (err2) {
+      logger.warn(`[AI] Key 2 failed for Custom Topic (${err2.message}) — trying Gemini Lite`);
+      try {
+        const liteRes = await axios.post(
+          `${AI_CONFIG.GEMINI_LITE.endpoint}?key=${process.env.GEMINI_API_KEY}`,
+          { contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: AI.TEMPERATURE, maxOutputTokens: 8192 } },
+          { timeout: AI.REQUEST_TIMEOUT_MS }
+        );
+        rawText = liteRes.data?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!rawText) throw new Error('Empty response from Gemini Lite');
+        provider = 'gemini-lite';
+        logger.info(`[AI] Gemini Lite for Custom Topic: ${topic}`);
+      } catch (err3) {
+        logger.warn(`[AI] Gemini Lite failed for Custom Topic (${err3.message}) — switching to Groq`);
+        try {
+          rawText = await callGroq(prompt);
+          provider = 'groq';
+          logger.info(`[AI] Groq LLaMA for Custom Topic: ${topic}`);
+        } catch (err4) {
+          logger.error(`[AI] All providers failed for Custom Topic: ${err4.message}`);
+          throw new Error(`AI custom generation failed after 4 attempts: ${err4.message}`);
+        }
+      }
+    }
+  }
+
+  const parsed = parseArticleResponse(rawText);
+
+  return {
+    headline: parsed.headline || 'Custom AI Generated Article',
+    subheadline: parsed.subheadline || '',
+    body: parsed.body || '',
+    summary: parsed.summary || '',
+    tags: Array.isArray(parsed.tags) ? parsed.tags : [],
+    topic: parsed.topic || topic,
+    wordCount: parsed.wordCount || 0,
+    sources: Array.isArray(parsed.sourcesUsed)
+      ? parsed.sourcesUsed.map((s) => ({ title: s, url: '#', source: 'AI Editor' }))
+      : [{ title: 'Editor Topic Prompt', url: '#', source: 'AI Editor' }],
+    scheduledFor: new Date(),
+    aiProvider: provider,
+  };
+};
+
