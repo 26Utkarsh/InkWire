@@ -11,6 +11,7 @@ import { writeCustomArticle, writeArticleFromWiki } from '../services/AIService.
 import { fetchImage } from '../services/ImageService.js';
 import { createSlug } from '../utils/slugify.js';
 import { fetchAllHeadlines } from '../services/NewsService.js';
+import { selectTopStories } from '../services/RankingService.js';
 
 const VALID_SLOTS = ['morning', 'afternoon', 'evening'];
 
@@ -520,15 +521,39 @@ export const getSuggestedHeadlines = async (req, res) => {
     logger.info('[ADMIN] Fetching suggested headlines for custom article creation');
     const headlines = await fetchAllHeadlines();
     
-    // Filter out very short or empty headlines, map to clean details and take top 8
-    const suggestions = headlines
-      .filter((h) => h.title && h.title.trim().length > 25)
-      .slice(0, 8)
-      .map((h) => ({
-        title: h.title.trim(),
-        source: h.source || 'News Feed',
-        topic: h.topic || 'india',
-      }));
+    // Filter and score headlines using our RankingService
+    const topStories = selectTopStories(headlines, Math.min(60, headlines.length));
+
+    // Group ranked stories by topic
+    const indiaStories = topStories.filter((s) => s.assignedTopic === 'india');
+    const worldStories = topStories.filter((s) => s.assignedTopic === 'world');
+    const otherStories = topStories.filter((s) => s.assignedTopic !== 'india' && s.assignedTopic !== 'world');
+
+    // Build balanced set: up to 4 India stories, up to 3 World stories, and remaining from others
+    const selected = [];
+    selected.push(...indiaStories.slice(0, 4));
+    selected.push(...worldStories.slice(0, 3));
+
+    // Collect fallback/spillover pool
+    const pool = [
+      ...indiaStories.slice(4),
+      ...worldStories.slice(3),
+      ...otherStories,
+    ];
+
+    // Fill the remaining slots up to 8
+    for (const story of pool) {
+      if (selected.length >= 8) break;
+      if (!selected.some((s) => s.title === story.title)) {
+        selected.push(story);
+      }
+    }
+
+    const suggestions = selected.map((h) => ({
+      title: h.title.trim(),
+      source: h.source || 'News Feed',
+      topic: h.assignedTopic || 'india',
+    }));
 
     return res.json({ success: true, data: suggestions });
   } catch (err) {
