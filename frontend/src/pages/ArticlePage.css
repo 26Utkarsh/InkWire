@@ -217,6 +217,7 @@
     margin-left: calc(-1 * var(--container-padding));
     margin-right: calc(-1 * var(--container-padding));
     width: calc(100% + 2 * var(--container-padding));
+    max-width: none;
   }
 
   /* Hide sidebar ad on mobile — it only shows a placeholder anyway */
