@@ -35,10 +35,8 @@ export const generateDailyArticles = async (count = ARTICLE.DRAFTS_PER_DAY, isMa
 
     const articleJobs = assigned.map(async (story) => {
       try {
-        const [articleData, imageData] = await Promise.all([
-          writeArticle(story),
-          fetchImage(story.assignedTopic, story.title),
-        ]);
+        const articleData = await writeArticle(story);
+        const imageData = await fetchImage(story.assignedTopic, articleData.imageSearchQuery || story.title);
 
         const sanitizedBody = sanitizeArticleHTML(articleData.body);
         const words    = countWords(sanitizedBody);

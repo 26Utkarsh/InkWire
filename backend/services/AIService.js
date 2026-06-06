@@ -4,7 +4,7 @@
  */
 
 import axios from 'axios';
-import { AI_CONFIG, buildArticlePrompt, buildCustomArticlePrompt } from '../config/ai.config.js';
+import { AI_CONFIG, buildArticlePrompt, buildCustomArticlePrompt, buildWikiImportPrompt } from '../config/ai.config.js';
 import { logger } from '../utils/logger.js';
 import { AI } from '../config/constants.js';
 
@@ -212,7 +212,71 @@ export const writeArticle = async (story) => {
       : [{ title: story.title, url: story.url, source: story.source }],
     scheduledFor: story.scheduledFor,
     aiProvider: provider,
+    imageSearchQuery: parsed.imageSearchQuery || '',
   };
+};
+
+const extractWikiQuery = (text) => {
+  const STOP_WORDS_LOCAL = new Set([
+    'write', 'article', 'topic', 'about', 'details', 'showing', 'risks', 'threat', 'serious',
+    'please', 'generate', 'create', 'visiting', 'visit', 'visits', 'under', 'serious', 'threats',
+    'andaman', 'nicobar', 'project', 'coral', 'reefs', 'trees'
+  ]);
+  const cleaned = text.replace(/[^a-zA-Z0-9 ]/g, '').trim();
+  const words = cleaned.split(/\s+/).filter(w => w.length > 3 && !STOP_WORDS_LOCAL.has(w.toLowerCase()));
+  return words.slice(0, 3).join(' ');
+};
+
+const fetchWikiContext = async (term) => {
+  try {
+    logger.info(`[AI] Searching Wikipedia for reference context matching: "${term}"`);
+    const searchRes = await axios.get('https://en.wikipedia.org/w/api.php', {
+      params: {
+        action: 'opensearch',
+        search: term,
+        limit: 1,
+        format: 'json',
+        origin: '*'
+      },
+      headers: {
+        'User-Agent': 'InkWireNewsBot/1.0 (admin@inkwire.com)'
+      },
+      timeout: 5000
+    });
+    const matchTitle = searchRes.data?.[1]?.[0];
+    if (!matchTitle) {
+      logger.info(`[AI] No Wikipedia match found for term: "${term}"`);
+      return null;
+    }
+
+    const contentRes = await axios.get('https://en.wikipedia.org/w/api.php', {
+      params: {
+        action: 'query',
+        prop: 'extracts',
+        exintro: true,
+        explaintext: true,
+        titles: matchTitle,
+        format: 'json',
+        redirects: 1,
+        origin: '*'
+      },
+      headers: {
+        'User-Agent': 'InkWireNewsBot/1.0 (admin@inkwire.com)'
+      },
+      timeout: 5000
+    });
+    const pages = contentRes.data?.query?.pages;
+    const pageId = Object.keys(pages || {})[0];
+    const extract = pages?.[pageId]?.extract;
+    if (extract) {
+      logger.info(`[AI] Successfully fetched Wikipedia extract for page: "${matchTitle}"`);
+      return { title: matchTitle, extract };
+    }
+    return null;
+  } catch (err) {
+    logger.warn(`[AI] Failed to fetch Wikipedia context: ${err.message}`);
+    return null;
+  }
 };
 
 /**
@@ -223,7 +287,17 @@ export const writeArticle = async (story) => {
  * @returns {Promise<object>} Structured article data ready for DB
  */
 export const writeCustomArticle = async (topic, customPrompt) => {
-  const prompt = buildCustomArticlePrompt(topic, customPrompt);
+  let enhancedPrompt = customPrompt;
+  const wikiQuery = extractWikiQuery(customPrompt);
+  
+  if (wikiQuery) {
+    const wikiInfo = await fetchWikiContext(wikiQuery);
+    if (wikiInfo) {
+      enhancedPrompt = `[WIKIPEDIA REFERENCE CONTEXT - Use this factual data for context and accuracy]\nSource: Wikipedia Page "${wikiInfo.title}"\nContent:\n${wikiInfo.extract}\n\n[END WIKIPEDIA REFERENCE CONTEXT]\n\nEditor Instructions: ${customPrompt}`;
+    }
+  }
+
+  const prompt = buildCustomArticlePrompt(topic, enhancedPrompt);
   let rawText;
   let provider = 'gemini';
 
@@ -294,6 +368,91 @@ export const writeCustomArticle = async (topic, customPrompt) => {
       : [{ title: 'Editor Topic Prompt', url: '#', source: 'AI Editor' }],
     scheduledFor: new Date(),
     aiProvider: provider,
+    imageSearchQuery: parsed.imageSearchQuery || '',
+  };
+};
+
+/**
+ * Write a publication-ready news report based on raw Wikipedia content
+ * Tries Gemini first, falls back to Groq automatically
+ * @param {string} topic - Category/topic (e.g. 'india', 'world')
+ * @param {string} wikiTitle - Title of the Wikipedia page
+ * @param {string} wikiContent - Extract text
+ * @returns {Promise<object>} Structured article data ready for DB
+ */
+export const writeArticleFromWiki = async (topic, wikiTitle, wikiContent) => {
+  const prompt = buildWikiImportPrompt(topic, wikiTitle, wikiContent);
+  let rawText;
+  let provider = 'gemini';
+
+  try {
+    rawText = await callGemini(prompt);
+    logger.info(`[AI] Gemini 2.5 Flash (Key 1) for Wikipedia Import: "${wikiTitle}"`);
+  } catch (err1) {
+    logger.warn(`[AI] Key 1 failed for Wikipedia Import (${err1.message}) — trying Key 2`);
+    try {
+      const key2 = process.env.GEMINI_API_KEY_2;
+      if (!key2) throw new Error('GEMINI_API_KEY_2 not set');
+      const res2 = await axios.post(
+        `${AI_CONFIG.PRIMARY.endpoint}?key=${key2}`,
+        {
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            temperature: AI.TEMPERATURE,
+            maxOutputTokens: 8192,
+            thinkingConfig: {
+              thinkingBudget: 0
+            }
+          }
+        },
+        { timeout: AI.REQUEST_TIMEOUT_MS }
+      );
+      rawText = res2.data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!rawText) throw new Error('Empty response from Gemini Key 2');
+      provider = 'gemini-key2';
+      logger.info(`[AI] Gemini 2.5 Flash (Key 2) for Wikipedia Import: "${wikiTitle}"`);
+    } catch (err2) {
+      logger.warn(`[AI] Key 2 failed for Wiki Import (${err2.message}) — trying Gemini Lite`);
+      try {
+        const liteRes = await axios.post(
+          `${AI_CONFIG.GEMINI_LITE.endpoint}?key=${process.env.GEMINI_API_KEY}`,
+          { contents: [{ parts: [{ text: prompt }] }], generationConfig: { temperature: AI.TEMPERATURE, maxOutputTokens: 8192 } },
+          { timeout: AI.REQUEST_TIMEOUT_MS }
+        );
+        rawText = liteRes.data?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!rawText) throw new Error('Empty response from Gemini Lite');
+        provider = 'gemini-lite';
+        logger.info(`[AI] Gemini Lite for Wikipedia Import: "${wikiTitle}"`);
+      } catch (err3) {
+        logger.warn(`[AI] Gemini Lite failed for Wiki Import (${err3.message}) — switching to Groq`);
+        try {
+          rawText = await callGroq(prompt);
+          provider = 'groq';
+          logger.info(`[AI] Groq LLaMA for Wikipedia Import: "${wikiTitle}"`);
+        } catch (err4) {
+          logger.error(`[AI] All providers failed for Wiki Import: ${err4.message}`);
+          throw new Error(`AI Wikipedia generation failed after 4 attempts: ${err4.message}`);
+        }
+      }
+    }
+  }
+
+  const parsed = parseArticleResponse(rawText);
+
+  return {
+    headline: parsed.headline || `Wikipedia Report: ${wikiTitle}`,
+    subheadline: parsed.subheadline || '',
+    body: parsed.body || '',
+    summary: parsed.summary || '',
+    tags: Array.isArray(parsed.tags) ? parsed.tags : [],
+    topic: parsed.topic || topic,
+    wordCount: parsed.wordCount || 0,
+    sources: Array.isArray(parsed.sourcesUsed)
+      ? parsed.sourcesUsed.map((s) => ({ title: s, url: `https://en.wikipedia.org/wiki/${encodeURIComponent(wikiTitle)}`, source: 'Wikipedia' }))
+      : [{ title: `Wikipedia: ${wikiTitle}`, url: `https://en.wikipedia.org/wiki/${encodeURIComponent(wikiTitle)}`, source: 'Wikipedia' }],
+    scheduledFor: new Date(),
+    aiProvider: provider,
+    imageSearchQuery: parsed.imageSearchQuery || '',
   };
 };
 

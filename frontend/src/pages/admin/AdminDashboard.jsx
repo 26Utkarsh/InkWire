@@ -6,7 +6,7 @@ import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useAdminStats } from '../../hooks/useAdmin.js';
 import AdminLayout from '../../components/layout/AdminLayout.jsx';
-import { triggerGeneration, sendNewsletter, triggerPublish, generateCustomArticle } from '../../services/adminService.js';
+import { triggerGeneration, sendNewsletter, triggerPublish, generateCustomArticle, wikiSearch, wikiImport } from '../../services/adminService.js';
 import useAppStore from '../../store/useAppStore.js';
 import './AdminDashboard.css';
 
@@ -33,6 +33,15 @@ const AdminDashboard = () => {
   const [customImageUrl, setCustomImageUrl] = useState('');
   const [customImageCredit, setCustomImageCredit] = useState('');
   const [generatingCustom, setGeneratingCustom] = useState(false);
+
+  // Wikipedia Import states
+  const [activeTab, setActiveTab] = useState('prompt'); // 'prompt' | 'wiki'
+  const [wikiQuery, setWikiQuery] = useState('');
+  const [wikiResults, setWikiResults] = useState([]);
+  const [searchingWiki, setSearchingWiki] = useState(false);
+  const [importingWiki, setImportingWiki] = useState(false);
+  const [wikiCategory, setWikiCategory] = useState('india');
+  const [selectedWiki, setSelectedWiki] = useState(null);
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
@@ -97,6 +106,41 @@ const AdminDashboard = () => {
       addToast(errorMsg, 'error');
     } finally {
       setGeneratingCustom(false);
+    }
+  };
+
+  const handleWikiSearch = async (e) => {
+    e.preventDefault();
+    if (!wikiQuery.trim()) return;
+
+    try {
+      setSearchingWiki(true);
+      setSelectedWiki(null);
+      const res = await wikiSearch(wikiQuery.trim());
+      setWikiResults(res.data || []);
+      if (res.data?.length === 0) {
+        addToast('No Wikipedia articles found', 'warning');
+      }
+    } catch {
+      addToast('Failed to search Wikipedia', 'error');
+    } finally {
+      setSearchingWiki(false);
+    }
+  };
+
+  const handleWikiImport = async (title) => {
+    try {
+      setImportingWiki(true);
+      await wikiImport({ title, topic: wikiCategory });
+      addToast(`🌐 "${title}" imported and rewritten successfully!`, 'success');
+      setWikiQuery('');
+      setWikiResults([]);
+      setSelectedWiki(null);
+    } catch (err) {
+      const errorMsg = err.response?.data?.message || 'Failed to import Wikipedia article';
+      addToast(errorMsg, 'error');
+    } finally {
+      setImportingWiki(false);
     }
   };
 
@@ -194,78 +238,201 @@ const AdminDashboard = () => {
         <section className="dashboard-section animate-fade-in delay-3">
           <h2 className="dashboard-section-title">⚡ Generate Custom Article via AI</h2>
           <div className="custom-gen-card">
-            <form onSubmit={handleCustomGenerate} className="custom-gen-form">
-              <div className="form-group">
-                <label htmlFor="custom-topic" className="form-label">Topic Description / Instructions</label>
-                <textarea
-                  id="custom-topic"
-                  className="form-control form-textarea"
-                  placeholder="Describe the topic in detail (e.g. 'Rahul Gandhi visiting Andaman islands and showing us the risks of cutting down 1.5 crore trees and serious threat to coral reefs by the Great Nicobar project')..."
-                  value={customTopic}
-                  onChange={(e) => setCustomTopic(e.target.value)}
-                  rows="4"
-                  required
-                />
-              </div>
-
-              <div className="form-row">
-                <div className="form-group flex-1">
-                  <label htmlFor="custom-category" className="form-label">Category</label>
-                  <select
-                    id="custom-category"
-                    className="form-control form-select"
-                    value={customCategory}
-                    onChange={(e) => setCustomCategory(e.target.value)}
-                  >
-                    <option value="india">India</option>
-                    <option value="world">World</option>
-                    <option value="politics">Politics</option>
-                    <option value="business">Business</option>
-                    <option value="technology">Technology</option>
-                    <option value="science">Science</option>
-                  </select>
-                </div>
-
-                <div className="form-group flex-2">
-                  <label htmlFor="custom-image-url" className="form-label">Custom Image URL (Optional)</label>
-                  <input
-                    type="url"
-                    id="custom-image-url"
-                    className="form-control"
-                    placeholder="https://images.unsplash.com/..."
-                    value={customImageUrl}
-                    onChange={(e) => setCustomImageUrl(e.target.value)}
-                  />
-                </div>
-
-                <div className="form-group flex-1">
-                  <label htmlFor="custom-image-credit" className="form-label">Image Credit (Optional)</label>
-                  <input
-                    type="text"
-                    id="custom-image-credit"
-                    className="form-control"
-                    placeholder="Photo via Rahul Gandhi on X"
-                    value={customImageCredit}
-                    onChange={(e) => setCustomImageCredit(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                className="btn btn-primary btn-submit-gen"
-                disabled={generatingCustom}
+            <div className="admin-tabs-nav">
+              <button 
+                className={`tab-nav-btn ${activeTab === 'prompt' ? 'active' : ''}`}
+                onClick={() => setActiveTab('prompt')}
+                type="button"
               >
-                {generatingCustom ? (
-                  <>
-                    <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" style={{ marginRight: '8px' }}></span>
-                    Generating Draft...
-                  </>
-                ) : (
-                  '⚡ Write & Add Draft to Queue'
-                )}
+                ⚡ AI Prompt Mode
               </button>
-            </form>
+              <button 
+                className={`tab-nav-btn ${activeTab === 'wiki' ? 'active' : ''}`}
+                onClick={() => setActiveTab('wiki')}
+                type="button"
+              >
+                🌐 Wikipedia Import Mode
+              </button>
+            </div>
+
+            {activeTab === 'prompt' ? (
+              <form onSubmit={handleCustomGenerate} className="custom-gen-form">
+                <div className="form-group">
+                  <label htmlFor="custom-topic" className="form-label">Topic Description / Instructions</label>
+                  <textarea
+                    id="custom-topic"
+                    className="form-control form-textarea"
+                    placeholder="Describe the topic in detail (e.g. 'Rahul Gandhi visiting Andaman islands and showing us the risks of cutting down 1.5 crore trees and serious threat to coral reefs by the Great Nicobar project')..."
+                    value={customTopic}
+                    onChange={(e) => setCustomTopic(e.target.value)}
+                    rows="4"
+                    required
+                  />
+                </div>
+
+                <div className="form-row">
+                  <div className="form-group flex-1">
+                    <label htmlFor="custom-category" className="form-label">Category</label>
+                    <select
+                      id="custom-category"
+                      className="form-control form-select"
+                      value={customCategory}
+                      onChange={(e) => setCustomCategory(e.target.value)}
+                    >
+                      <option value="india">India</option>
+                      <option value="world">World</option>
+                      <option value="politics">Politics</option>
+                      <option value="business">Business</option>
+                      <option value="technology">Technology</option>
+                      <option value="science">Science</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group flex-2">
+                    <label htmlFor="custom-image-url" className="form-label">Custom Image URL (Optional)</label>
+                    <input
+                      type="url"
+                      id="custom-image-url"
+                      className="form-control"
+                      placeholder="https://images.unsplash.com/..."
+                      value={customImageUrl}
+                      onChange={(e) => setCustomImageUrl(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="form-group flex-1">
+                    <label htmlFor="custom-image-credit" className="form-label">Image Credit (Optional)</label>
+                    <input
+                      type="text"
+                      id="custom-image-credit"
+                      className="form-control"
+                      placeholder="Photo via Rahul Gandhi on X"
+                      value={customImageCredit}
+                      onChange={(e) => setCustomImageCredit(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  className="btn btn-primary btn-submit-gen"
+                  disabled={generatingCustom}
+                >
+                  {generatingCustom ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" style={{ marginRight: '8px' }}></span>
+                      Generating Draft...
+                    </>
+                  ) : (
+                    '⚡ Write & Add Draft to Queue'
+                  )}
+                </button>
+              </form>
+            ) : (
+              <div className="wiki-import-container">
+                <form onSubmit={handleWikiSearch} className="wiki-search-form">
+                  <div className="form-group">
+                    <label htmlFor="wiki-search-query" className="form-label">Search Wikipedia</label>
+                    <div className="input-group-search">
+                      <input
+                        type="text"
+                        id="wiki-search-query"
+                        className="form-control"
+                        placeholder="Search for a topic or article on Wikipedia..."
+                        value={wikiQuery}
+                        onChange={(e) => setWikiQuery(e.target.value)}
+                        required
+                      />
+                      <button
+                        type="submit"
+                        className="btn btn-primary btn-search"
+                        disabled={searchingWiki}
+                      >
+                        {searchingWiki ? 'Searching...' : '🔍 Search'}
+                      </button>
+                    </div>
+                  </div>
+                </form>
+
+                {wikiResults.length > 0 && (
+                  <div className="wiki-results-section">
+                    <div className="wiki-results-grid">
+                      <div className="wiki-list-panel">
+                        <h4 className="panel-title-sm">Search Results</h4>
+                        <div className="wiki-list">
+                          {wikiResults.map((item, i) => (
+                            <div
+                              key={i}
+                              className={`wiki-list-item ${selectedWiki?.title === item.title ? 'selected' : ''}`}
+                              onClick={() => setSelectedWiki(item)}
+                            >
+                              <div className="wiki-item-title">{item.title}</div>
+                              <div className="wiki-item-desc">{item.description || 'No description available'}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="wiki-preview-panel">
+                        {selectedWiki ? (
+                          <div className="wiki-preview-card">
+                            <h4 className="preview-title">{selectedWiki.title}</h4>
+                            <p className="preview-desc">{selectedWiki.description}</p>
+                            <a
+                              href={selectedWiki.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="wiki-external-link"
+                            >
+                              View on Wikipedia ↗
+                            </a>
+
+                            <div className="wiki-import-controls">
+                              <div className="form-group">
+                                <label htmlFor="wiki-import-category" className="form-label">Category</label>
+                                <select
+                                  id="wiki-import-category"
+                                  className="form-control form-select"
+                                  value={wikiCategory}
+                                  onChange={(e) => setWikiCategory(e.target.value)}
+                                >
+                                  <option value="india">India</option>
+                                  <option value="world">World</option>
+                                  <option value="politics">Politics</option>
+                                  <option value="business">Business</option>
+                                  <option value="technology">Technology</option>
+                                  <option value="science">Science</option>
+                                </select>
+                              </div>
+
+                              <button
+                                type="button"
+                                className="btn btn-primary btn-wiki-import-submit"
+                                onClick={() => handleWikiImport(selectedWiki.title)}
+                                disabled={importingWiki}
+                              >
+                                {importingWiki ? (
+                                  <>
+                                    <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true" style={{ marginRight: '8px' }}></span>
+                                    AI is writing article...
+                                  </>
+                                ) : (
+                                  '🌐 Import & Rewrite via AI'
+                                )}
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="wiki-preview-placeholder">
+                            Select an article from search results to preview and import
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </section>
 

@@ -228,3 +228,95 @@
     margin: var(--sp-6) 0;
   }
 }
+
+/* ── QUICK AI SUMMARY BOX ────────────────────────────────── */
+.quick-ai-summary-box {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.03) 0%, rgba(139, 92, 246, 0.03) 100%);
+  border: 1px solid rgba(99, 102, 241, 0.15);
+  border-radius: var(--radius-md);
+  padding: var(--sp-5) var(--sp-6);
+  margin-bottom: var(--sp-6);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.02);
+}
+
+.quick-ai-summary-box::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, #4f46e5 0%, #8b5cf6 100%);
+}
+
+.summary-header {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-3);
+  flex-wrap: wrap;
+}
+
+.summary-icon {
+  font-size: 1.1rem;
+  animation: summaryPulse 2s infinite;
+  display: inline-block;
+}
+
+@keyframes summaryPulse {
+  0% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.8; }
+}
+
+.summary-title {
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #4f46e5;
+}
+
+.summary-badge {
+  font-family: var(--font-sans);
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #8b5cf6;
+  background: rgba(139, 92, 246, 0.08);
+  padding: 2px 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(139, 92, 246, 0.15);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-left: auto;
+}
+
+.summary-body p {
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+  margin: 0;
+  font-weight: 500;
+}
+
+@media (max-width: 767px) {
+  .quick-ai-summary-box {
+    padding: var(--sp-4) var(--sp-5);
+    margin-bottom: var(--sp-5);
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+  
+  .summary-badge {
+    margin-left: 0;
+    margin-top: 4px;
+    width: 100%;
+    text-align: center;
+  }
+}
+

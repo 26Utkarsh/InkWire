@@ -1,8 +1,4 @@
-/**
- * @fileoverview admin.controller.js — Full admin controller for InkWire.
- * NEW: bulk approve/reject, pin/unpin, slot override, test email, system status.
- */
-
+import axios from 'axios';
 import { Article } from '../models/Article.js';
 import { Newsletter } from '../models/Newsletter.js';
 import { generateDailyArticles, publishSlot } from '../services/SchedulerService.js';
@@ -11,7 +7,7 @@ import { sanitizeArticleHTML } from '../utils/sanitize.js';
 import { countWords, calculateReadTime } from '../utils/readTime.js';
 import { logger } from '../utils/logger.js';
 import { ARTICLE } from '../config/constants.js';
-import { writeCustomArticle } from '../services/AIService.js';
+import { writeCustomArticle, writeArticleFromWiki } from '../services/AIService.js';
 import { fetchImage } from '../services/ImageService.js';
 import { createSlug } from '../utils/slugify.js';
 
@@ -347,7 +343,7 @@ export const generateCustomArticle = async (req, res) => {
     let finalImageCredit = imageCredit;
 
     if (!finalImageUrl) {
-      const imageData = await fetchImage(topic, articleData.headline);
+      const imageData = await fetchImage(topic, articleData.imageSearchQuery || articleData.headline);
       finalImageUrl = imageData.url;
       finalImageCredit = imageData.credit;
     } else if (!finalImageCredit) {
@@ -386,6 +382,134 @@ export const generateCustomArticle = async (req, res) => {
   } catch (err) {
     logger.error(`[ADMIN] generateCustomArticle: ${err.message}`);
     return res.status(500).json({ success: false, message: `Failed to generate custom article: ${err.message}` });
+  }
+};
+
+/** Search Wikipedia articles via opensearch */
+export const wikiSearch = async (req, res) => {
+  try {
+    const { query } = req.query;
+    if (!query || typeof query !== 'string' || !query.trim()) {
+      return res.status(400).json({ success: false, message: 'Search query is required' });
+    }
+
+    logger.info(`[ADMIN] Wikipedia search requested for: "${query}"`);
+    const response = await axios.get('https://en.wikipedia.org/w/api.php', {
+      params: {
+        action: 'opensearch',
+        search: query.trim(),
+        limit: 10,
+        format: 'json',
+        origin: '*'
+      },
+      headers: {
+        'User-Agent': 'InkWireNewsBot/1.0 (admin@inkwire.com)'
+      },
+      timeout: 5000
+    });
+
+    const [, titles, descriptions, urls] = response.data;
+    const results = (titles || []).map((title, i) => ({
+      title,
+      description: descriptions?.[i] || '',
+      url: urls?.[i] || '',
+    }));
+
+    return res.json({ success: true, data: results });
+  } catch (err) {
+    logger.error(`[ADMIN] wikiSearch: ${err.message}`);
+    return res.status(500).json({ success: false, message: 'Failed to search Wikipedia' });
+  }
+};
+
+/** Fetch Wikipedia page content, rewrite via AI, and import to queue as draft */
+export const wikiImport = async (req, res) => {
+  try {
+    const { title, topic = 'india' } = req.body;
+    if (!title || typeof title !== 'string' || !title.trim()) {
+      return res.status(400).json({ success: false, message: 'Wikipedia page title is required' });
+    }
+
+    logger.info(`[ADMIN] Wikipedia import triggered for page: "${title}" under category: ${topic}`);
+
+    // Fetch extract content + main image URL from MediaWiki query API
+    const contentRes = await axios.get('https://en.wikipedia.org/w/api.php', {
+      params: {
+        action: 'query',
+        prop: 'extracts|pageimages',
+        exintro: false,
+        explaintext: true,
+        piprop: 'original',
+        titles: title.trim(),
+        format: 'json',
+        redirects: 1,
+        origin: '*'
+      },
+      headers: {
+        'User-Agent': 'InkWireNewsBot/1.0 (admin@inkwire.com)'
+      },
+      timeout: 8000
+    });
+
+    const pages = contentRes.data?.query?.pages;
+    const pageId = Object.keys(pages || {})[0];
+    const pageData = pages?.[pageId];
+
+    if (!pageData || pageId === '-1') {
+      return res.status(404).json({ success: false, message: `Wikipedia page "${title}" not found.` });
+    }
+
+    const wikiContent = pageData.extract || '';
+    if (!wikiContent.trim()) {
+      return res.status(400).json({ success: false, message: 'Wikipedia page has no text content.' });
+    }
+
+    // Call AIService to rewrite Wikipedia page into a structured news draft
+    const articleData = await writeArticleFromWiki(topic, title.trim(), wikiContent);
+
+    // Get the image URL from Wikipedia's original pageimage, or fallback to Unsplash
+    let finalImageUrl = pageData.original?.source;
+    let finalImageCredit = 'Image via Wikipedia';
+
+    if (!finalImageUrl) {
+      logger.info(`[ADMIN] Wikipedia page has no main image — querying Unsplash for: "${articleData.imageSearchQuery || articleData.headline}"`);
+      const imageData = await fetchImage(topic, articleData.imageSearchQuery || articleData.headline);
+      finalImageUrl = imageData.url;
+      finalImageCredit = imageData.credit;
+    }
+
+    const sanitizedBody = sanitizeArticleHTML(articleData.body);
+    const words = countWords(sanitizedBody);
+    const readTime = calculateReadTime(words);
+    const slug = createSlug(articleData.headline);
+
+    const generatedAt = new Date();
+    const reviewDeadline = new Date(generatedAt.getTime() + 30 * 60 * 1000);
+
+    const article = await Article.create({
+      headline: articleData.headline,
+      subheadline: articleData.subheadline,
+      slug,
+      body: sanitizedBody,
+      summary: articleData.summary,
+      tags: articleData.tags,
+      topic: articleData.topic,
+      wordCount: words,
+      readTime,
+      imageUrl: finalImageUrl,
+      imageCredit: finalImageCredit,
+      sources: articleData.sources,
+      scheduledFor: 'morning',
+      status: 'draft',
+      generatedAt,
+      reviewDeadline,
+    });
+
+    logger.info(`[ADMIN] Wikipedia page "${title}" imported as draft: "${article.headline}"`);
+    return res.json({ success: true, data: article });
+  } catch (err) {
+    logger.error(`[ADMIN] wikiImport: ${err.message}`);
+    return res.status(500).json({ success: false, message: `Failed to import Wikipedia page: ${err.message}` });
   }
 };
 

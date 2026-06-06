@@ -54,18 +54,38 @@ export const fetchImage = async (topic, headline) => {
   }
 };
 
+const STOP_WORDS = new Set([
+  'highlights', 'visits', 'discuss', 'shows', 'against', 'under', 'about', 
+  'after', 'before', 'while', 'during', 'report', 'reports', 'stated', 
+  'states', 'claims', 'claim', 'record', 'records', 'first', 'second', 
+  'third', 'years', 'month', 'week', 'day', 'hours', 'minutes', 'seconds',
+  'people', 'person', 'official', 'officials', 'leader', 'leaders', 'minister',
+  'meeting', 'meetings', 'visit', 'talks', 'announces', 'announce', 'announced',
+  'unveils', 'unveil', 'unveiled', 'launches', 'launch', 'launched', 'issues',
+  'demands', 'demand', 'demanded', 'accuses', 'accuse', 'accused', 'criticizes',
+  'criticize', 'criticized', 'slams', 'slam', 'slammed', 'warns', 'warn', 'warned',
+  'threat', 'threats', 'threatened', 'risks', 'risk', 'risky', 'seriousness', 'serious'
+]);
+
 /**
  * Build Unsplash search query from topic and headline keywords
  * @param {string} topic - Topic id
- * @param {string} headline - Article headline
+ * @param {string} headline - Article headline or search term
  * @returns {string} Search query string
  */
 const buildQuery = (topic, headline) => {
   const topicBase = TOPIC_QUERIES[topic] || 'news world';
+  if (!headline) return topicBase;
+
+  // If the query is already a short 2-3 word query, use it directly
+  if (headline.split(/\s+/).length <= 3) {
+    return `${headline} ${topicBase}`.trim();
+  }
+
   const keywords = headline
     .replace(/[^a-zA-Z ]/g, '')
-    .split(' ')
-    .filter((w) => w.length > 4)
+    .split(/\s+/)
+    .filter((w) => w.length > 4 && !STOP_WORDS.has(w.toLowerCase()))
     .slice(0, 3)
     .join(' ');
   return `${keywords} ${topicBase}`.trim();

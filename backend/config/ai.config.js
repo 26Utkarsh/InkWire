@@ -66,6 +66,7 @@ WRITING RULES:
 
 TAGS: Generate 4-6 relevant tags.
 SUMMARY: Write a 2-sentence summary for social sharing.
+IMAGE QUERY: Generate a 2-3 word English query representing the most prominent concrete visual subject of the article (e.g. 'coral reef', 'microchip factory', 'coal mine'). Do NOT use names of people or abstract verbs. Use concrete nouns.
 
 CRITICAL JSON RULES:
 - Output ONLY raw JSON. No markdown fences. No preamble. No explanation.
@@ -83,7 +84,8 @@ RESPOND IN THIS EXACT JSON FORMAT ONLY:
   "tags": [],
   "topic": "${topic}",
   "wordCount": 0,
-  "sourcesUsed": []
+  "sourcesUsed": [],
+  "imageSearchQuery": ""
 }`;
 };
 
@@ -126,6 +128,7 @@ WRITING RULES:
 
 TAGS: Generate 4-6 relevant tags.
 SUMMARY: Write a 2-sentence summary for social sharing.
+IMAGE QUERY: Generate a 2-3 word English query representing the most prominent concrete visual subject of the article (e.g. 'coral reef', 'microchip factory', 'coal mine'). Do NOT use names of people or abstract verbs. Use concrete nouns.
 
 CRITICAL JSON RULES:
 - Output ONLY raw JSON. No markdown fences. No preamble. No explanation.
@@ -143,7 +146,72 @@ RESPOND IN THIS EXACT JSON FORMAT ONLY:
   "tags": [],
   "topic": "${topic}",
   "wordCount": 0,
-  "sourcesUsed": ["Editor Custom Request"]
+  "sourcesUsed": ["Editor Custom Request"],
+  "imageSearchQuery": ""
+}`;
+};
+
+/**
+ * Build an article prompt to rewrite Wikipedia extracts into high-quality, publication-ready news articles
+ * @param {string} topic - Category/topic identifier
+ * @param {string} wikiTitle - Title of the Wikipedia page
+ * @param {string} wikiContent - Extract/content of the Wikipedia page
+ * @returns {string} Complete prompt string
+ */
+export const buildWikiImportPrompt = (topic, wikiTitle, wikiContent) => {
+  return `You are a senior editor at a world-class publication combining the analytical depth of Bloomberg, the clarity of The New York Times, the global perspective of Reuters, and the India expertise of The Hindu.
+
+Rewrite the following Wikipedia article information into a complete, publication-ready, deeply informative news report.
+
+TOPIC CATEGORY: ${topic}
+WIKIPEDIA PAGE TITLE: ${wikiTitle}
+WIKIPEDIA PAGE CONTENT EXTRACT:
+${wikiContent}
+
+ARTICLE REQUIREMENTS:
+1. HEADLINE: Sharp, factual, compelling. No clickbait. Max 12 words.
+2. SUBHEADLINE: One sentence expanding the headline. Max 20 words.
+3. LEAD PARAGRAPH: The single most important fact or current status. Answer who/what/when/where/why immediately.
+4. BODY (5-7 paragraphs):
+   - Para 2: Essential historical context and background based on the Wikipedia extract
+   - Para 3-4: Key details, facts, numbers, and dates mentioned in the extract
+   - Para 5: Current status, impact, or significance
+   - Para 6: India angle or global context if relevant
+   - Para 7: What happens next — future outlook or ongoing debates
+5. CLOSING: One strong concluding sentence with forward-looking insight.
+
+WRITING RULES:
+- Active voice always. Never passive.
+- Short sentences. Average 18 words per sentence.
+- No opinions. No editorializing. Facts only.
+- No phrases like "In conclusion", "It is worth noting", "It should be mentioned"
+- Vary paragraph length. Mix short punchy paragraphs with detailed ones.
+- Use numbers and data wherever possible.
+- Target reading level: intelligent adult, no jargon without explanation
+- Word count: 650-950 words
+
+TAGS: Generate 4-6 relevant tags.
+SUMMARY: Write a 2-sentence summary for social sharing.
+IMAGE QUERY: Generate a 2-3 word English query representing the most prominent concrete visual subject of the article (e.g. 'coral reef', 'microchip factory', 'coal mine'). Do NOT use names of people or abstract verbs. Use concrete nouns.
+
+CRITICAL JSON RULES:
+- Output ONLY raw JSON. No markdown fences. No preamble. No explanation.
+- The body field must use <p> tags for paragraphs, <strong> for bold, <em> for italic.
+- Do NOT use double quotes inside field values. Use single quotes or HTML entities (&quot;) instead.
+- Do NOT use backslashes. Do NOT include newlines inside string values.
+- The entire response must be valid, parseable JSON.
+
+RESPOND IN THIS EXACT JSON FORMAT ONLY:
+{
+  "headline": "",
+  "subheadline": "",
+  "body": "<p>paragraph one</p><p>paragraph two</p>",
+  "summary": "",
+  "tags": [],
+  "topic": "${topic}",
+  "wordCount": 0,
+  "sourcesUsed": ["Wikipedia (${wikiTitle})"],
+  "imageSearchQuery": ""
 }`;
 };
 

@@ -171,6 +171,20 @@ const ArticlePage = () => {
               </figure>
             )}
 
+            {/* Quick AI Summary */}
+            {article.summary && (
+              <div className="quick-ai-summary-box">
+                <div className="summary-header">
+                  <span className="summary-icon">⚡</span>
+                  <span className="summary-title">Quick AI Summary</span>
+                  <span className="summary-badge">Key Takeaways</span>
+                </div>
+                <div className="summary-body">
+                  <p>{article.summary}</p>
+                </div>
+              </div>
+            )}
+
             {/* Mid-article ad */}
             <div className="article-ad-mid">
               <AdSlot type="rectangle" />

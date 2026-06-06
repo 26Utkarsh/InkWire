@@ -30,3 +30,5 @@ export const triggerPublish    = async (slot) => (await api.post('/admin/publish
 export const sendNewsletter    = async ()     => (await api.post('/admin/newsletter/send')).data;
 export const sendTestEmail     = async ()     => (await api.post('/admin/test-email')).data;
 export const generateCustomArticle = async (data) => (await api.post('/admin/generate-custom', data)).data;
+export const wikiSearch = async (query) => (await api.get('/admin/wiki/search', { params: { query } })).data;
+export const wikiImport = async (data) => (await api.post('/admin/wiki/import', data)).data;
