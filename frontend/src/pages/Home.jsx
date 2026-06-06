@@ -41,7 +41,7 @@ const SecondaryCard = ({ article }) => (
 
 const Home = () => {
   const { featured, loading: featuredLoading } = useFeaturedArticle();
-  const { articles, loading: articlesLoading } = useArticles();
+  const { articles, loading: articlesLoading, hasMore, loadMore } = useArticles();
 
   const secondary = articles.slice(0, 4);
   const grid = articles.slice(4);
@@ -54,6 +54,21 @@ const Home = () => {
   const displaySecondary = featured ? secondary : articles.slice(1, 5);
   const displayGrid = featured ? grid : articles.slice(5);
   const isLoading = featuredLoading || articlesLoading;
+
+  // Infinite Scroll Listener
+  React.useEffect(() => {
+    const handleScroll = () => {
+      if (
+        window.innerHeight + document.documentElement.scrollTop >=
+        document.documentElement.offsetHeight - 300
+      ) {
+        loadMore();
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [loadMore]);
 
   return (
     <>
@@ -119,7 +134,7 @@ const Home = () => {
           </div>
 
           <div className="grid-3 stagger-children">
-            {isLoading
+            {isLoading && articles.length === 0
               ? Array.from({ length: 6 }, (_, i) => <ArticleCardSkeleton key={i} />)
               : displayGrid.length > 0
                 ? displayGrid.map((a) => <ArticleCard key={a._id} article={a} />)
@@ -130,6 +145,13 @@ const Home = () => {
                 )
             }
           </div>
+
+          {/* Infinite Scroll Shimmer / Load More Indicator */}
+          {articlesLoading && articles.length > 0 && (
+            <div className="home-infinite-loading" style={{ display: 'flex', justifyContent: 'center', marginTop: '32px' }}>
+              <div className="spinner" />
+            </div>
+          )}
         </section>
 
         {/* Newsletter */}
