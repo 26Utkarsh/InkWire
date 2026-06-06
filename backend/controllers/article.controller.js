@@ -95,7 +95,7 @@ export const getArticlesByTopic = async (req, res) => {
  */
 export const searchArticles = async (req, res) => {
   try {
-    const rawQuery = req.query.q?.trim();
+    const rawQuery = typeof req.query.q === 'string' ? req.query.q.trim() : '';
     if (!rawQuery || rawQuery.length < 2) {
       return res.status(400).json({ success: false, message: 'Search query must be at least 2 characters' });
     }
@@ -147,8 +147,8 @@ export const getFeaturedArticle = async (req, res) => {
 export const getArticlesByDate = async (req, res) => {
   try {
     const dateStr = req.query.date;
-    if (!dateStr) {
-      return res.status(400).json({ success: false, message: 'date query param required (YYYY-MM-DD)' });
+    if (!dateStr || typeof dateStr !== 'string') {
+      return res.status(400).json({ success: false, message: 'date query param required (YYYY-MM-DD) as a string' });
     }
 
     const start = new Date(dateStr);

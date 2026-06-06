@@ -18,6 +18,7 @@ import SearchPage from './pages/SearchPage.jsx';
 import AboutPage from './pages/AboutPage.jsx';
 import PrivacyPage from './pages/PrivacyPage.jsx';
 import TermsPage from './pages/TermsPage.jsx';
+import UnsubscribePage from './pages/UnsubscribePage.jsx';
 
 // Admin pages — all lazy loaded (don't affect public bundle)
 const AdminLogin     = React.lazy(() => import('./pages/admin/AdminLogin.jsx'));
@@ -73,6 +74,7 @@ const App = () => {
             <Route path="/about" element={<PublicLayout><AboutPage /></PublicLayout>} />
             <Route path="/privacy-policy" element={<PublicLayout><PrivacyPage /></PublicLayout>} />
             <Route path="/terms" element={<PublicLayout><TermsPage /></PublicLayout>} />
+            <Route path="/unsubscribe" element={<PublicLayout><UnsubscribePage /></PublicLayout>} />
 
             <Route path="/admin/login"     element={<Suspense fallback={<PageLoader />}><AdminLogin /></Suspense>} />
             <Route path="/admin/dashboard" element={<Suspense fallback={<PageLoader />}><AdminDashboard /></Suspense>} />
