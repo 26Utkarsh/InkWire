@@ -1,0 +1,17 @@
+{
+  "short_name": "InkWire",
+  "name": "InkWire — Daily Brief",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#111111",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#111111"
+}

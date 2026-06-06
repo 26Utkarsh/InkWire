@@ -91,13 +91,20 @@ const ArticlePage = () => {
     );
   }
 
+  const getAbsoluteImageUrl = (url) => {
+    if (!url) return `${window.location.origin}/logo.png`;
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    return `${window.location.origin}${url.startsWith('/') ? '' : '/'}${url}`;
+  };
+
   const canonicalUrl = `${window.location.origin}/article/${article.slug}`;
+  const absoluteImage = getAbsoluteImageUrl(article.imageUrl);
   const schemaMarkup = {
     '@context': 'https://schema.org',
     '@type': 'NewsArticle',
     headline: article.headline,
     description: article.summary,
-    image: article.imageUrl,
+    image: absoluteImage,
     datePublished: article.publishedAt,
     dateModified: article.updatedAt,
     author: { '@type': 'Organization', name: 'InkWire Editorial Desk' },
@@ -116,13 +123,13 @@ const ArticlePage = () => {
         <meta name="description" content={article.summary} />
         <meta property="og:title" content={article.headline} />
         <meta property="og:description" content={article.summary} />
-        <meta property="og:image" content={article.imageUrl} />
+        <meta property="og:image" content={absoluteImage} />
         <meta property="og:type" content="article" />
         <meta property="og:url" content={canonicalUrl} />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={article.headline} />
         <meta name="twitter:description" content={article.summary} />
-        <meta name="twitter:image" content={article.imageUrl} />
+        <meta name="twitter:image" content={absoluteImage} />
         <link rel="canonical" href={canonicalUrl} />
         <script type="application/ld+json">{JSON.stringify(schemaMarkup)}</script>
       </Helmet>
