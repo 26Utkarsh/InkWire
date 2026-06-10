@@ -415,6 +415,44 @@
   }
 }
 
+/* === TABLET (768px - 899px) === */
+@media (max-width: 899px) {
+  .navbar-top {
+    height: 58px;
+    padding: 0 var(--sp-5);
+  }
+
+  .logo-block-bbc {
+    width: 29px;
+    height: 29px;
+    font-size: 1.3rem;
+  }
+
+  .logo-text-bbc {
+    font-size: 1.35rem;
+  }
+
+  .logo-crest-bbc {
+    height: 32px;
+    margin: 0 3px;
+  }
+
+  .navbar-bottom {
+    height: 40px;
+  }
+
+  .navbar-link {
+    font-size: 0.7rem;
+    padding: 0 var(--sp-2);
+    height: 40px;
+  }
+
+  .hamburger-label {
+    display: none;
+  }
+}
+
+/* === MOBILE (< 768px) === */
 @media (max-width: 767px) {
   .navbar-top {
     height: 56px;
@@ -456,6 +494,7 @@
     display: none !important;
   }
 
+  /* Touch-friendly: 44px minimum for all tap targets */
   .navbar-search-btn-bbc {
     padding: 0;
     width: 44px;
@@ -473,6 +512,7 @@
     color: var(--color-text-primary);
     width: 44px;
     height: 44px;
+    -webkit-tap-highlight-color: transparent;
   }
 
   .search-modal-overlay {
@@ -486,5 +526,11 @@
 
   .search-modal-input {
     font-size: 1.125rem;
+  }
+
+  /* Mobile menu items need bigger tap zones */
+  .navbar-mobile-link {
+    min-height: 52px;
+    padding: 16px 0;
   }
 }

@@ -1,9 +1,9 @@
 /* =============================================================
    responsive.css — Responsive breakpoints for InkWire
-   Desktop-first with consistent uniform spacing
+   3-tier system: Desktop (1200+) → Tablet (768-1199) → Mobile (<768)
    ============================================================= */
 
-/* === CONTAINER — Uniform max-width and horizontal padding === */
+/* ── CONTAINER ─────────────────────────────────────────────── */
 .container {
   width: 100%;
   max-width: var(--container-max);
@@ -11,12 +11,12 @@
   padding: 0 var(--container-padding);
 }
 
-/* === SECTION SPACING — All sections use same vertical rhythm === */
+/* ── SECTION SPACING ────────────────────────────────────────── */
 .section-gap {
   margin-bottom: var(--section-gap);
 }
 
-/* === GRID SYSTEM — Uniform gap across all grids === */
+/* ── GRID SYSTEM ────────────────────────────────────────────── */
 .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--sp-6); }
 .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-6); }
 .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--sp-6); }
@@ -38,12 +38,16 @@
   margin: 0 auto;
 }
 
-/* === LARGE DESKTOP (1200px+) === */
+/* ─────────────────────────────────────────────────────────────
+   LARGE DESKTOP (1200px+)
+───────────────────────────────────────────────────────────── */
 @media (min-width: 1200px) {
   .hide-desktop { display: none !important; }
 }
 
-/* === TABLET (900px - 1199px) === */
+/* ─────────────────────────────────────────────────────────────
+   WIDE TABLET (900px - 1199px)
+───────────────────────────────────────────────────────────── */
 @media (max-width: 1199px) {
   .featured-layout {
     grid-template-columns: 1fr 300px;
@@ -65,19 +69,46 @@
   }
 }
 
-/* === MEDIUM TABLET (768px - 899px) === */
+/* ─────────────────────────────────────────────────────────────
+   TABLET (768px - 899px)
+   iPads, small laptops
+───────────────────────────────────────────────────────────── */
 @media (max-width: 899px) {
+  /* Stack featured layout */
   .featured-layout {
     grid-template-columns: 1fr;
+    gap: var(--sp-4);
   }
 
+  /* 3-col grids become 2-col */
   .grid-3 {
     grid-template-columns: repeat(2, 1fr);
+    gap: var(--sp-5);
+  }
+
+  /* 2-col grids stay 2-col */
+  .grid-2 {
+    gap: var(--sp-5);
+  }
+
+  /* Slightly smaller section gap on tablet */
+  .section-gap {
+    margin-bottom: clamp(24px, 4vw, 48px);
+  }
+
+  /* Article body: slightly smaller for comfortable reading */
+  .article-body {
+    font-size: 1.0625rem;
+    line-height: 1.8;
   }
 }
 
-/* === MOBILE (< 768px) === */
+/* ─────────────────────────────────────────────────────────────
+   MOBILE (< 768px)
+   Phones — single column, touch-optimized
+───────────────────────────────────────────────────────────── */
 @media (max-width: 767px) {
+  /* All grids collapse to single column */
   .featured-layout,
   .grid-2,
   .grid-3,
@@ -88,19 +119,113 @@
 
   .hide-mobile { display: none !important; }
 
+  /* Article body: comfortable mobile reading */
   .article-body {
     font-size: 1rem;
-    line-height: 1.75;
+    line-height: 1.78;
   }
 
-  /* Drop cap disabled on mobile for readability */
+  /* Disable drop cap on mobile */
   .article-body > p:first-of-type::first-letter {
     float: none;
     font-size: inherit;
     line-height: inherit;
     padding: 0;
+    margin: 0;
   }
 
+  /* Navbar: hide desktop links, show hamburger */
   .navbar-links { display: none; }
   .navbar-hamburger { display: flex; }
+
+  /* Section header text smaller */
+  .section-title {
+    font-size: 1.125rem;
+  }
+
+  /* Reduce divider margin on mobile */
+  .divider {
+    margin: var(--sp-5) 0;
+  }
+
+  /* Touch-friendly buttons — minimum 44px height (Apple HIG standard) */
+  .btn {
+    min-height: 44px;
+    padding: 12px var(--sp-5);
+  }
+
+  .btn-ghost {
+    min-height: 44px;
+    padding: 10px var(--sp-3);
+  }
+
+  /* Share buttons full-width on narrow screens */
+  .share-buttons {
+    flex-direction: column;
+  }
+
+  .share-btn {
+    justify-content: center;
+    min-height: 44px;
+  }
+
+  /* Toast slides in from bottom on mobile */
+  #toast-container {
+    top: auto;
+    bottom: var(--sp-4);
+    right: var(--sp-4);
+    left: var(--sp-4);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   SMALL MOBILE (< 380px)
+   Galaxy S series, iPhone SE
+───────────────────────────────────────────────────────────── */
+@media (max-width: 379px) {
+  .logo-block-bbc {
+    width: 23px;
+    height: 23px;
+    font-size: 1rem;
+  }
+
+  .logo-text-bbc {
+    font-size: 1.1rem;
+  }
+
+  .logo-crest-bbc {
+    height: 24px;
+  }
+
+  /* Even tighter grid gap */
+  .grid-2,
+  .grid-3,
+  .grid-4,
+  .featured-layout {
+    gap: var(--sp-3);
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   PRINT
+───────────────────────────────────────────────────────────── */
+@media print {
+  .navbar,
+  .article-sidebar,
+  .share-buttons,
+  .article-ad-top,
+  .article-ad-mid,
+  #toast-container {
+    display: none !important;
+  }
+
+  .page-wrapper {
+    padding-top: 0;
+  }
+
+  .article-body {
+    font-size: 12pt;
+    line-height: 1.6;
+    color: #000;
+  }
 }

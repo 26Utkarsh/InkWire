@@ -2,6 +2,7 @@
 
 .published-table-wrap {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch; /* smooth momentum scroll on iOS */
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   background: var(--color-bg);
@@ -12,6 +13,7 @@
   border-collapse: collapse;
   font-family: var(--font-sans);
   font-size: 0.875rem;
+  min-width: 600px; /* prevents squishing — allows horizontal scroll on narrow screens */
 }
 
 .published-table th {
@@ -24,6 +26,7 @@
   letter-spacing: 0.06em;
   color: var(--color-text-muted);
   background: var(--color-bg-secondary);
+  white-space: nowrap;
 }
 
 .published-table td {
@@ -60,9 +63,47 @@
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+  align-items: center;
 }
 
 .published-table tr.table-row-featured td {
   background: rgba(37, 99, 235, 0.04);
   border-left: 3px solid #2563eb;
+}
+
+/* === TABLET (768px - 899px) === */
+@media (max-width: 899px) {
+  .published-table {
+    font-size: 0.8125rem;
+  }
+
+  .published-table th,
+  .published-table td {
+    padding: 10px 12px;
+  }
+}
+
+/* === MOBILE (< 768px) === */
+@media (max-width: 767px) {
+  .published-table th,
+  .published-table td {
+    padding: 10px 10px;
+  }
+
+  .published-table {
+    font-size: 0.8125rem;
+  }
+
+  /* Action buttons stack vertically on mobile */
+  .published-actions {
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-start;
+  }
+
+  .published-actions .btn {
+    font-size: 0.75rem;
+    padding: 6px 10px;
+    min-height: 36px;
+  }
 }

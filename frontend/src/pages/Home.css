@@ -170,24 +170,48 @@
 }
 
 /* ── RESPONSIVE ───────────────────────────────────────────── */
+
+/* === TABLET (768px - 899px) === */
 @media (max-width: 899px) {
   .home-hero {
     padding-top: var(--sp-6);
+    margin-bottom: var(--sp-6);
   }
+
+  .home-featured {
+    min-height: 380px;
+  }
+
   .home-empty-hero {
     height: 320px;
   }
+
+  /* Secondary cards show in a 2-col grid under the hero on tablet */
+  .home-secondary {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--sp-4);
+    margin-top: var(--sp-4);
+  }
+
+  .secondary-card {
+    padding: var(--sp-3) 0;
+  }
+
+  .secondary-card-thumb {
+    width: 70px;
+    height: 52px;
+  }
 }
 
+/* === MOBILE (< 768px) === */
 @media (max-width: 767px) {
   .home-hero {
-    /* Remove top padding on mobile — hero is full-bleed, no gap needed */
     padding-top: var(--sp-4);
     margin-bottom: var(--sp-6);
   }
 
   /* On mobile: featured-layout stacks vertically */
-  /* The secondary aside appears BELOW the hero, not hidden */
   .featured-layout {
     display: flex !important;
     flex-direction: column !important;
@@ -195,22 +219,29 @@
   }
 
   .home-featured {
-    min-height: 360px;
+    min-height: 300px;
   }
 
   .home-secondary {
-    /* Show secondary cards below hero on mobile with a top border separator */
     border-top: 2px solid var(--color-accent);
     padding-top: var(--sp-2);
     margin-top: var(--sp-4);
+    display: flex;
+    flex-direction: column;
   }
 
   .secondary-card-headline {
-    font-size: 0.9375rem;
+    font-size: 0.9rem;
+    -webkit-line-clamp: 2;
+  }
+
+  .secondary-card-thumb {
+    width: 72px;
+    height: 54px;
   }
 
   .home-empty-hero {
-    height: 260px;
+    height: 240px;
   }
 
   .home-empty-content {
@@ -219,5 +250,25 @@
 
   .home-ad-inline {
     margin-bottom: var(--sp-4);
+  }
+
+  .home-grid-section {
+    margin-bottom: var(--sp-8);
+  }
+}
+
+/* === SMALL MOBILE (< 380px) === */
+@media (max-width: 379px) {
+  .home-featured {
+    min-height: 260px;
+  }
+
+  .secondary-card-thumb {
+    width: 60px;
+    height: 46px;
+  }
+
+  .secondary-card-headline {
+    font-size: 0.875rem;
   }
 }

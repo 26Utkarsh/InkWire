@@ -80,6 +80,14 @@
   --z-modal:   300;
 }
 
+/* === TABLET (768px - 899px) — reduce nav height slightly === */
+@media (max-width: 899px) {
+  :root {
+    --nav-height: 94px;
+  }
+}
+
+/* === MOBILE (< 768px) — compact nav === */
 @media (max-width: 767px) {
   :root {
     --nav-height: 56px;

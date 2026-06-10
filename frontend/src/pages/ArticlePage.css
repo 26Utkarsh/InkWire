@@ -296,27 +296,62 @@
   top: calc(var(--nav-height) + var(--sp-6));
 }
 
-/* ── RESPONSIVE MOBILE ─────────────────────────────────────── */
+/* ── RESPONSIVE TABLET (768-899px) ────────────────────────── */
+@media (max-width: 899px) {
+  .article-main {
+    padding: var(--sp-6) 0 var(--sp-10);
+    max-width: 100%;
+  }
+
+  .article-headline-bbc {
+    font-size: clamp(1.75rem, 4.5vw, 2.5rem);
+  }
+
+  .article-subheadline-bbc {
+    font-size: clamp(1.1rem, 2.5vw, 1.3rem);
+  }
+
+  /* Full-bleed hero image on tablet */
+  .article-hero-image-bbc {
+    max-height: 380px;
+    margin-left: calc(-1 * var(--container-padding));
+    margin-right: calc(-1 * var(--container-padding));
+    width: calc(100% + 2 * var(--container-padding));
+    border-radius: 0;
+  }
+
+  .article-sidebar {
+    display: none;
+  }
+
+  .bbc-at-a-glance {
+    padding: 16px 20px;
+  }
+}
+
+/* ── RESPONSIVE MOBILE (< 768px) ──────────────────────────── */
 @media (max-width: 767px) {
   .article-main {
     padding: var(--sp-5) 0 var(--sp-8);
   }
 
   .article-headline-bbc {
-    font-size: 1.85rem;
+    font-size: 1.75rem;
     line-height: 1.2;
   }
 
   .article-subheadline-bbc {
-    font-size: 1.125rem;
+    font-size: 1.0625rem;
     margin-bottom: var(--sp-4);
   }
 
+  /* Full-bleed hero image — extends to screen edges on mobile */
   .article-hero-image-bbc {
-    max-height: 260px;
+    max-height: 240px;
     margin-left: calc(-1 * var(--container-padding));
     margin-right: calc(-1 * var(--container-padding));
     width: calc(100% + 2 * var(--container-padding));
+    border-radius: 0;
   }
 
   .article-sidebar {
@@ -329,5 +364,55 @@
 
   .google-trigger {
     padding: 6px 12px;
+  }
+
+  .article-metabar-bbc {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .bbc-at-a-glance {
+    padding: 14px 16px;
+    margin-bottom: var(--sp-6);
+  }
+
+  .at-a-glance-item {
+    font-size: 0.875rem;
+  }
+
+  /* Tags wrap nicely */
+  .article-tags-bbc {
+    gap: 6px;
+  }
+
+  .article-tag-bbc {
+    font-size: 0.75rem;
+    padding: 5px 12px;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Sources box */
+  .article-sources-bbc {
+    padding: var(--sp-4);
+  }
+}
+
+/* ── SMALL MOBILE (< 380px) ──────────────────────────────── */
+@media (max-width: 379px) {
+  .article-headline-bbc {
+    font-size: 1.5rem;
+  }
+
+  .article-subheadline-bbc {
+    font-size: 1rem;
+  }
+
+  .article-hero-image-bbc {
+    max-height: 200px;
+  }
+
+  .bbc-at-a-glance {
+    padding: 12px 14px;
   }
 }
