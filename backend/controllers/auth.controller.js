@@ -12,15 +12,14 @@ import { AUTH } from '../config/constants.js';
 /** Cookie name — consistent across login / logout / middleware */
 export const AUTH_COOKIE = 'inkwire_admin_token';
 
-/** Cookie options — HttpOnly blocks JS access, Secure forces HTTPS, SameSite=Strict prevents CSRF */
+/** Cookie options — HttpOnly blocks JS access, Secure forces HTTPS, SameSite controls cross-origin sending */
 const isProd = process.env.NODE_ENV === 'production';
 
-/** Cookie options — HttpOnly blocks JS access, Secure forces HTTPS, SameSite controls cross-origin sending */
 const COOKIE_OPTIONS = {
   httpOnly: true,                                  // ← cannot be read by JavaScript (blocks XSS theft)
-  secure: isProd,                                  // ← HTTPS only in production (required for SameSite=None)
-  sameSite: isProd ? 'none' : 'lax',               // ← 'none' for cross-site production, 'lax' for local development
-  maxAge: 15 * 60 * 1000,                          // ← 15 minutes, matches JWT expiry
+  secure: isProd,                                  // ← HTTPS only in production
+  sameSite: isProd ? 'strict' : 'lax',             // ← 'strict' in prod: cookie NEVER sent cross-site
+  maxAge: 8 * 60 * 60 * 1000,                      // ← 8 hours (practical admin session)
   path: '/',
 };
 
