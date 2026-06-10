@@ -15,7 +15,7 @@ import { connectDB } from './config/db.js';
 import { rateLimiter } from './middleware/rateLimit.middleware.js';
 import { errorHandler, notFoundHandler } from './middleware/error.middleware.js';
 import { router as apiRouter } from './routes/index.js';
-import { initScheduler } from './services/SchedulerService.js';
+import { initScheduler, publishPassedSlots } from './services/SchedulerService.js';
 import { logger } from './utils/logger.js';
 import { SERVER } from './config/constants.js';
 
@@ -94,8 +94,39 @@ app.use(mongoSanitize());
 /** Prevent HTTP parameter pollution */
 app.use(hpp());
 
+/** CSRF Protection Middleware - Verify Origin/Referer for state-changing requests */
+const csrfProtection = (req, res, next) => {
+  if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) {
+    return next();
+  }
+  const origin = req.headers.origin;
+  const referer = req.headers.referer;
+  const allowedOrigin = (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, '');
+
+  if (origin && origin.replace(/\/$/, '') !== allowedOrigin) {
+    logger.warn(`[SECURITY] CSRF blocked: invalid origin ${origin}`);
+    return res.status(403).json({ success: false, message: 'Invalid origin (CSRF)' });
+  }
+  if (!origin && referer) {
+    try {
+      const refererOrigin = new URL(referer).origin;
+      if (refererOrigin.replace(/\/$/, '') !== allowedOrigin) {
+        logger.warn(`[SECURITY] CSRF blocked: invalid referer ${referer}`);
+        return res.status(403).json({ success: false, message: 'Invalid referer (CSRF)' });
+      }
+    } catch (e) {
+      logger.warn(`[SECURITY] CSRF blocked: malformed referer ${referer}`);
+      return res.status(403).json({ success: false, message: 'Invalid referer (CSRF)' });
+    }
+  }
+  return next();
+};
+
 /** Global rate limiting */
 app.use('/api', rateLimiter);
+
+/** CSRF protection on all mutating API calls */
+app.use('/api', csrfProtection);
 
 /** Mount API routes */
 app.use('/api/v1', apiRouter);
@@ -115,6 +146,7 @@ const bootstrap = async () => {
   try {
     await connectDB();
     initScheduler();
+    await publishPassedSlots();
     app.listen(SERVER.PORT, () => {
       logger.info(`[SERVER] InkWire backend running on port ${SERVER.PORT}`);
     });

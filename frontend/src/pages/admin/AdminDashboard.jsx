@@ -129,6 +129,30 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleSelectAndGenerate = async (item) => {
+    try {
+      setGeneratingCustom(true);
+      setCustomTopic(item.title);
+      setCustomCategory(item.topic || 'india');
+      setCustomImageUrl('');
+      setCustomImageCredit('');
+
+      await generateCustomArticle({
+        prompt: item.title,
+        topic: item.topic || 'india',
+        imageUrl: '',
+        imageCredit: ''
+      });
+      addToast('✨ Custom article generated successfully! Added to Review Queue.', 'success');
+      setCustomTopic('');
+    } catch (err) {
+      const errorMsg = err.response?.data?.message || 'Failed to generate custom article';
+      addToast(errorMsg, 'error');
+    } finally {
+      setGeneratingCustom(false);
+    }
+  };
+
   const handleWikiSearch = async (e) => {
     e.preventDefault();
     if (!wikiQuery.trim()) return;
@@ -322,10 +346,7 @@ const AdminDashboard = () => {
                             key={i}
                             type="button"
                             className="suggestion-pill"
-                            onClick={() => {
-                              setCustomTopic(item.title);
-                              setCustomCategory(item.topic || 'india');
-                            }}
+                            onClick={() => handleSelectAndGenerate(item)}
                           >
                             <span className="suggestion-pill-source">[{item.source}]</span> {item.title}
                           </button>

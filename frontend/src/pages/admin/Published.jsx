@@ -6,7 +6,7 @@ import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import AdminLayout from '../../components/layout/AdminLayout.jsx';
 import { format } from 'date-fns';
-import { getPublished, unpublishArticle, deleteArticle } from '../../services/adminService.js';
+import { getPublished, unpublishArticle, deleteArticle, togglePin } from '../../services/adminService.js';
 import useAppStore from '../../store/useAppStore.js';
 import Badge from '../../components/ui/Badge.jsx';
 import './Published.css';
@@ -51,6 +51,16 @@ const Published = () => {
     }
   };
 
+  const handlePin = async (id, headline) => {
+    try {
+      const res = await togglePin(id);
+      addToast(res.isFeatured ? `📌 "${headline}" pinned as featured hero` : `❌ "${headline}" unpinned`, 'success');
+      load();
+    } catch {
+      addToast('Failed to toggle pin state', 'error');
+    }
+  };
+
   return (
     <AdminLayout>
       <Helmet><title>Published | InkWire Admin</title></Helmet>
@@ -84,14 +94,23 @@ const Published = () => {
               </thead>
               <tbody>
                 {articles.map((a) => (
-                  <tr key={a._id}>
+                  <tr key={a._id} className={a.isFeatured ? 'table-row-featured' : ''}>
                     <td className="published-headline">
+                      {a.isFeatured && <span style={{ marginRight: '6px', cursor: 'help' }} title="Pinned at the top of homepage">📌</span>}
                       <a href={`/article/${a.slug}`} target="_blank" rel="noopener noreferrer">{a.headline}</a>
                     </td>
                     <td><Badge topic={a.topic} /></td>
                     <td className="published-date">{a.publishedAt ? format(new Date(a.publishedAt), 'MMM d, yyyy HH:mm') : '—'}</td>
                     <td className="published-views">{a.views?.toLocaleString()}</td>
                     <td className="published-actions">
+                      <button
+                        className={`btn btn-sm ${a.isFeatured ? 'btn-primary' : 'btn-ghost'}`}
+                        onClick={() => handlePin(a._id, a.headline)}
+                        id={`pin-${a._id}`}
+                        style={a.isFeatured ? { background: '#2563eb', color: '#fff', borderColor: '#2563eb', fontWeight: 600 } : {}}
+                      >
+                        {a.isFeatured ? '📍 Pinned' : '📌 Pin Hero'}
+                      </button>
                       <button className="btn btn-ghost btn-sm" onClick={() => handleUnpublish(a._id, a.headline)} id={`unpublish-${a._id}`}>Unpublish</button>
                       <button className="btn btn-danger btn-sm" onClick={() => handleDelete(a._id, a.headline)} id={`delete-${a._id}`}>Delete</button>
                     </td>

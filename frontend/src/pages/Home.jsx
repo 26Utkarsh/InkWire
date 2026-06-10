@@ -43,16 +43,15 @@ const Home = () => {
   const { featured, loading: featuredLoading } = useFeaturedArticle();
   const { articles, loading: articlesLoading, hasMore, loadMore } = useArticles();
 
-  const secondary = articles.slice(0, 4);
-  const grid = articles.slice(4);
-
-  /**
-   * When no pinned featured article exists, promote the first grid article.
-   * This prevents the harsh blank-void empty state.
-   */
   const displayFeatured = featured ?? (articles.length > 0 ? articles[0] : null);
-  const displaySecondary = featured ? secondary : articles.slice(1, 5);
-  const displayGrid = featured ? grid : articles.slice(5);
+
+  // Filter out the featured article by ID to prevent it from appearing in other sections
+  const filteredArticles = displayFeatured
+    ? articles.filter((a) => a._id !== displayFeatured._id)
+    : articles;
+
+  const displaySecondary = filteredArticles.slice(0, 4);
+  const displayGrid = filteredArticles.slice(4);
   const isLoading = featuredLoading || articlesLoading;
 
   // Infinite Scroll Listener

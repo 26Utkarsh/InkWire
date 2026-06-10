@@ -101,57 +101,149 @@
   border-bottom-color: var(--topic-color, var(--color-accent));
 }
 
-/* ── EDITORIAL TEXT LOGO (The Hindu / NYT style) ───────────── */
-.navbar-logo {
+/* ── BBC-STYLE LOGO ───────────────────────────────────────── */
+.navbar-logo-bbc {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 16px;
+  gap: 8px;
   text-decoration: none;
   color: var(--color-text-primary);
   transition: opacity var(--transition-fast);
 }
 
-.navbar-logo:hover {
+.navbar-logo-bbc:hover {
   opacity: 0.85;
 }
 
-.logo-word {
-  font-family: var(--font-serif);
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: var(--color-text-primary);
-  letter-spacing: 0.06em;
-  line-height: 1;
+.logo-blocks-bbc {
+  display: flex;
+  gap: 3px;
 }
 
-.logo-crest {
-  height: 44px;
-  width: auto;
-  flex-shrink: 0;
-}
-
-/* ── RIGHT-SIDE ACTIONS ───────────────────────────────────── */
-.navbar-icon-btn {
+.logo-block-bbc {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-md);
+  width: 32px;
+  height: 32px;
+  background: #000000;
+  color: #ffffff;
+  font-family: var(--font-sans);
+  font-size: 1.45rem;
+  font-weight: 800;
+  line-height: 1;
+  text-align: center;
+  border-radius: 1px;
+}
+
+.logo-crest-bbc {
+  height: 38px;
+  width: auto;
+  flex-shrink: 0;
+  margin: 0 4px;
+  transition: transform var(--transition-fast) ease;
+}
+
+.navbar-logo-bbc:hover .logo-crest-bbc {
+  transform: scale(1.05);
+}
+
+.logo-text-bbc {
+  font-family: var(--font-sans);
+  font-size: 1.55rem;
+  font-weight: 800;
+  color: #000000;
+  letter-spacing: 0.05em;
+  line-height: 1;
+}
+
+/* Hamburger & Label */
+.navbar-hamburger-bbc {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   background: transparent;
   border: none;
   cursor: pointer;
-  color: var(--color-text-secondary);
-  transition: background var(--transition-fast), color var(--transition-fast);
-}
-
-.navbar-icon-btn:hover {
-  background: var(--color-bg-secondary);
   color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--radius-sm);
+  transition: background var(--transition-fast);
 }
 
-.navbar-hamburger {
+.navbar-hamburger-bbc:hover {
+  background: var(--color-bg-secondary);
+}
+
+/* Search Button BBC style */
+.navbar-search-btn-bbc {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--radius-sm);
+  transition: background var(--transition-fast);
+}
+
+.navbar-search-btn-bbc:hover {
+  background: var(--color-bg-secondary);
+}
+
+/* Auth buttons */
+.navbar-auth-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: var(--sp-3);
+}
+
+.btn-auth {
+  font-family: var(--font-sans);
+  font-size: 0.775rem;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-auth-register {
+  background: #000000;
+  color: #ffffff;
+  border: 1px solid #000000;
+}
+
+.btn-auth-register:hover {
+  background: #222222;
+  border-color: #222222;
+}
+
+.btn-auth-signin {
+  background: #ffffff;
+  color: #000000;
+  border: 1px solid var(--color-border-strong);
+}
+
+.btn-auth-signin:hover {
+  background: var(--color-bg-secondary);
+  border-color: #000000;
+}
+
+/* Mobile-only toggle settings */
+.mobile-only-toggle {
   display: none;
 }
 
@@ -330,32 +422,55 @@
   }
   
   .navbar-top-left {
-    display: none;
+    display: none !important;
   }
 
-  .logo-word {
-    font-size: 1.625rem;
-    letter-spacing: 0.04em;
+  .navbar-logo-bbc {
+    gap: 6px;
   }
 
-  .logo-crest {
-    height: 30px;
-    width: auto;
+  .logo-block-bbc {
+    width: 26px;
+    height: 26px;
+    font-size: 1.15rem;
   }
 
-  .navbar-logo {
-    gap: 8px;
+  .logo-text-bbc {
+    font-size: 1.25rem;
+  }
+
+  .logo-crest-bbc {
+    height: 28px;
+    margin: 0 2px;
   }
 
   .navbar-bottom {
     display: none;
   }
 
-  .navbar-hamburger {
-    display: flex;
+  .navbar-auth-buttons {
+    display: none !important;
   }
 
-  .navbar-icon-btn {
+  .search-text-bbc {
+    display: none !important;
+  }
+
+  .navbar-search-btn-bbc {
+    padding: 0;
+    width: 44px;
+    height: 44px;
+    justify-content: center;
+  }
+
+  .mobile-only-toggle {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--color-text-primary);
     width: 44px;
     height: 44px;
   }

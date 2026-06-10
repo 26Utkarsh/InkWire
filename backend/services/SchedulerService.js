@@ -128,6 +128,55 @@ export const publishSlot = async (slot) => {
 };
 
 /**
+ * Automatically publish approved articles whose scheduled slot times have passed.
+ * This acts as a catch-up mechanism in case the server was offline/asleep during the cron window.
+ */
+export const publishPassedSlots = async () => {
+  logger.info('[SCHEDULER] Checking for approved articles in past slots (catch-up)...');
+  try {
+    const approved = await Article.find({ status: 'approved' });
+    if (approved.length === 0) return;
+
+    const now = new Date();
+    let publishCount = 0;
+
+    for (const article of approved) {
+      // Map slot to hour in system time (IST or local)
+      const slotHours = { morning: 8, afternoon: 13, evening: 19 };
+      const hour = slotHours[article.scheduledFor] || 8;
+
+      // Calculate target publish time on the day it was created/generated
+      const target = new Date(article.createdAt || article.generatedAt);
+      target.setHours(hour, 0, 0, 0);
+
+      // If the article was created after the slot hour on its creation day,
+      // it was scheduled for the next day's slot.
+      const createdTime = new Date(article.createdAt || article.generatedAt);
+      if (createdTime.getTime() > target.getTime()) {
+        target.setDate(target.getDate() + 1);
+      }
+
+      // If current time is past the target time, it should be published!
+      if (now.getTime() >= target.getTime()) {
+        article.status = 'published';
+        article.publishedAt = now; // set publish time to now
+        await article.save();
+        logger.info(`[SCHEDULER] Catch-up published: "${article.headline}" (scheduled: ${article.scheduledFor} on ${target.toDateString()})`);
+        publishCount++;
+      }
+    }
+
+    if (publishCount > 0) {
+      logger.info(`[SCHEDULER] Catch-up complete: published ${publishCount} approved articles`);
+    } else {
+      logger.info('[SCHEDULER] Catch-up complete: no articles to publish');
+    }
+  } catch (err) {
+    logger.error(`[SCHEDULER] publishPassedSlots failed: ${err.message}`);
+  }
+};
+
+/**
  * Save daily analytics snapshot at midnight
  * @returns {Promise<void>}
  */
@@ -166,11 +215,14 @@ export const initScheduler = () => {
   /** Analytics snapshot at midnight */
   cron.schedule(CRON.ANALYTICS_SNAPSHOT, () => saveAnalyticsSnapshot());
 
-  /** Auto-review: every 5 minutes — picks up overdue drafts */
-  cron.schedule('*/5 * * * *', () => runAutoReview());
+  /** Auto-review: every 5 minutes — picks up overdue drafts + publishes catch-up slots */
+  cron.schedule('*/5 * * * *', async () => {
+    await runAutoReview();
+    await publishPassedSlots();
+  });
 
   logger.info('[SCHEDULER] All cron jobs initialized');
-  logger.info('[SCHEDULER] Generation: 5:00 AM | Auto-Review: every 5 min | Reminders: 7:30/12:30/18:30 | Publish: 8:00 AM / 1:00 PM / 7:00 PM');
+  logger.info('[SCHEDULER] Generation: 5:00 AM | Auto-Review + Catch-up: every 5 min | Reminders: 7:30/12:30/18:30 | Publish: 8:00 AM / 1:00 PM / 7:00 PM');
 };
 
 /**

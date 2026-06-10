@@ -19,7 +19,7 @@ const API_BASE = import.meta.env.VITE_API_URL
  */
 export const api = axios.create({
   baseURL: API_BASE,
-  timeout: 15000,
+  timeout: 90000,                                 // ← 90 seconds (allows for Wikipedia search, AI generation, and Unsplash calls)
   withCredentials: true,                          // ← sends HttpOnly cookie automatically
   headers: { 'Content-Type': 'application/json' },
 });

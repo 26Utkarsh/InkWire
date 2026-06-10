@@ -99,13 +99,17 @@ export const getStats = async (req, res) => {
 /** Approve a draft article */
 export const approveArticle = async (req, res) => {
   try {
-    const article = await Article.findByIdAndUpdate(req.params.id, { status: 'approved' }, { new: true });
+    const article = await Article.findByIdAndUpdate(
+      req.params.id, 
+      { status: 'published', publishedAt: new Date() }, 
+      { new: true }
+    );
     if (!article) return res.status(404).json({ success: false, message: 'Article not found' });
-    logger.info(`[ADMIN] Approved: "${article.headline}"`);
+    logger.info(`[ADMIN] Published instantly: "${article.headline}"`);
     return res.json({ success: true, data: article });
   } catch (err) {
     logger.error(`[ADMIN] approveArticle: ${err.message}`);
-    return res.status(500).json({ success: false, message: 'Failed to approve' });
+    return res.status(500).json({ success: false, message: 'Failed to publish article' });
   }
 };
 
@@ -131,13 +135,13 @@ export const bulkApprove = async (req, res) => {
     }
     const result = await Article.updateMany(
       { _id: { $in: ids }, status: 'draft' },
-      { status: 'approved' }
+      { status: 'published', publishedAt: new Date() }
     );
-    logger.info(`[ADMIN] Bulk approved: ${result.modifiedCount} articles`);
-    return res.json({ success: true, message: `${result.modifiedCount} articles approved`, count: result.modifiedCount });
+    logger.info(`[ADMIN] Bulk published instantly: ${result.modifiedCount} articles`);
+    return res.json({ success: true, message: `${result.modifiedCount} articles published instantly`, count: result.modifiedCount });
   } catch (err) {
     logger.error(`[ADMIN] bulkApprove: ${err.message}`);
-    return res.status(500).json({ success: false, message: 'Bulk approve failed' });
+    return res.status(500).json({ success: false, message: 'Bulk publish failed' });
   }
 };
 
@@ -230,8 +234,8 @@ export const editArticle = async (req, res) => {
       wordCount,
       readTime:      calculateReadTime(wordCount),
       editedByAdmin: true,
-      // Only allow status change to 'approved', never to arbitrary values
-      ...(approve === true && { status: 'approved' }),
+      // Publish instantly when approve is true, otherwise keep as draft
+      ...(approve === true && { status: 'published', publishedAt: new Date() }),
     };
 
     const article = await Article.findByIdAndUpdate(req.params.id, update, { new: true });

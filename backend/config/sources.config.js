@@ -20,6 +20,7 @@ export const SOURCES = {
   rss: {
     enabled: true,
     feeds: [
+      // === WORLD / GLOBAL TOP SOURCES ===
       {
         name: 'BBC World',
         url: 'http://feeds.bbci.co.uk/news/world/rss.xml',
@@ -33,10 +34,30 @@ export const SOURCES = {
         credibilityScore: 98,
       },
       {
+        name: 'Al Jazeera',
+        url: 'https://www.aljazeera.com/xml/rss/all.xml',
+        topic: 'world',
+        credibilityScore: 85,
+      },
+      {
+        name: 'Guardian World',
+        url: 'https://www.theguardian.com/world/rss',
+        topic: 'world',
+        credibilityScore: 90,
+      },
+
+      // === INDIA NATIONAL NEWS ===
+      {
         name: 'The Hindu',
         url: 'https://www.thehindu.com/news/national/?service=rss',
         topic: 'india',
-        credibilityScore: 90,
+        credibilityScore: 92,
+      },
+      {
+        name: 'The Hindu National',
+        url: 'https://www.thehindu.com/news/national/rss.xml',
+        topic: 'india',
+        credibilityScore: 92,
       },
       {
         name: 'Times of India',
@@ -45,22 +66,60 @@ export const SOURCES = {
         credibilityScore: 80,
       },
       {
-        name: 'TechCrunch',
-        url: 'https://techcrunch.com/feed/',
-        topic: 'technology',
-        credibilityScore: 85,
-      },
-      {
-        name: 'Al Jazeera',
-        url: 'https://www.aljazeera.com/xml/rss/all.xml',
-        topic: 'world',
-        credibilityScore: 85,
-      },
-      {
         name: 'NDTV',
         url: 'https://feeds.feedburner.com/ndtvnews-top-stories',
         topic: 'india',
         credibilityScore: 82,
+      },
+      {
+        name: 'NDTV India',
+        url: 'https://feeds.feedburner.com/ndtvnews-india-news',
+        topic: 'india',
+        credibilityScore: 82,
+      },
+      {
+        name: 'Indian Express',
+        url: 'https://indianexpress.com/feed/',
+        topic: 'india',
+        credibilityScore: 88,
+      },
+      {
+        name: 'Indian Express Politics',
+        url: 'https://indianexpress.com/section/political-pulse/feed/',
+        topic: 'india',
+        credibilityScore: 90,
+      },
+      {
+        name: 'Hindustan Times',
+        url: 'https://www.hindustantimes.com/rss/topnews/rssfeed.xml',
+        topic: 'india',
+        credibilityScore: 82,
+      },
+      {
+        name: 'The Wire',
+        url: 'https://thewire.in/feed',
+        topic: 'india',
+        credibilityScore: 85,
+      },
+      {
+        name: 'The Print',
+        url: 'https://theprint.in/feed/',
+        topic: 'india',
+        credibilityScore: 85,
+      },
+      {
+        name: 'LiveMint',
+        url: 'https://www.livemint.com/rss/news',
+        topic: 'business',
+        credibilityScore: 85,
+      },
+
+      // === TECHNOLOGY ===
+      {
+        name: 'TechCrunch',
+        url: 'https://techcrunch.com/feed/',
+        topic: 'technology',
+        credibilityScore: 85,
       },
     ],
   },

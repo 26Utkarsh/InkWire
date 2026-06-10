@@ -3,7 +3,7 @@
  */
 
 import React, { Suspense, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import Navbar from './components/layout/Navbar.jsx';
 import Footer from './components/layout/Footer.jsx';
@@ -38,6 +38,17 @@ const PageLoader = () => (
   </div>
 );
 
+/** Scroll restoration component — scrolls to top on navigation */
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [pathname]);
+
+  return null;
+};
+
 /** Public layout with Navbar + Footer */
 const PublicLayout = ({ children }) => (
   <>
@@ -62,6 +73,7 @@ const App = () => {
   return (
     <HelmetProvider>
       <BrowserRouter>
+        <ScrollToTop />
         <Toast />
         <Suspense fallback={<PageLoader />}>
           <Routes>

@@ -72,7 +72,7 @@ const ArticleEditor = () => {
         tags: tags.split(',').map((t) => t.trim()).filter(Boolean),
         approve,
       });
-      addToast(approve ? 'Article edited and approved!' : 'Article saved as draft', 'success');
+      addToast(approve ? 'Article edited and published instantly!' : 'Article saved as draft', 'success');
       navigate('/admin/queue');
     } catch (err) {
       addToast(err.response?.data?.message || 'Save failed', 'error');
@@ -106,7 +106,7 @@ const ArticleEditor = () => {
               Save Draft
             </button>
             <button className="btn btn-success" onClick={() => handleSave(true)} disabled={saving} id="btn-save-approve">
-              {saving ? 'Saving...' : '✅ Save & Approve'}
+              {saving ? 'Publishing...' : '🚀 Save & Publish'}
             </button>
             <button className="btn btn-ghost" onClick={() => navigate('/admin/queue')} disabled={saving}>
               Cancel

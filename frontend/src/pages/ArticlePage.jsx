@@ -1,79 +1,30 @@
 /**
  * @fileoverview ArticlePage.jsx — Full article reading page for InkWire.
- * Includes SEO meta, schema markup, AdSense slots, share buttons, related articles.
+ * Redesigned to match BBC News editorial layout and typography.
  */
 
 import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { format } from 'date-fns';
+import { format, formatDistanceToNow } from 'date-fns';
 import { useQuery } from '../hooks/useArticleDetail.js';
 import ArticleBody from '../components/article/ArticleBody.jsx';
-import ArticleMeta from '../components/article/ArticleMeta.jsx';
 import AdSlot from '../components/ui/AdSlot.jsx';
 import NewsletterForm from '../components/ui/NewsletterForm.jsx';
 import useAppStore from '../store/useAppStore.js';
 import './ArticlePage.css';
 
-/** Share buttons for Twitter, WhatsApp, and copy link */
-const ShareButtons = ({ article }) => {
-  const [copied, setCopied] = useState(false);
-  const addToast = useAppStore((s) => s.addToast);
-  const url = encodeURIComponent(window.location.href);
-  const text = encodeURIComponent(article.headline);
-
-  const copyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(window.location.href);
-      setCopied(true);
-      addToast('Link copied!', 'success');
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      addToast('Could not copy link', 'error');
-    }
-  };
-
-  return (
-    <div className="share-section">
-      <span className="share-label">Share:</span>
-      <div className="share-buttons">
-        <a
-          href={`https://twitter.com/intent/tweet?text=${text}&url=${url}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="share-btn"
-          id="share-twitter"
-          aria-label="Share on Twitter"
-        >
-          𝕏 Twitter
-        </a>
-        <a
-          href={`https://wa.me/?text=${text}%20${url}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="share-btn"
-          id="share-whatsapp"
-          aria-label="Share on WhatsApp"
-        >
-          💬 WhatsApp
-        </a>
-        <button className="share-btn" onClick={copyLink} id="share-copy" aria-label="Copy link">
-          {copied ? '✓ Copied' : '🔗 Copy Link'}
-        </button>
-      </div>
-    </div>
-  );
-};
-
 const ArticlePage = () => {
   const { slug } = useParams();
   const { article, loading, error } = useQuery(slug);
+  const [copied, setCopied] = useState(false);
+  const addToast = useAppStore((s) => s.addToast);
 
   if (loading) {
     return (
       <div className="page-wrapper article-page-loading">
         <div className="container">
-          <div className="skeleton" style={{ height: '500px', borderRadius: '8px' }} />
+          <div className="skeleton" style={{ height: '500px', borderRadius: '4px' }} />
         </div>
       </div>
     );
@@ -97,6 +48,17 @@ const ArticlePage = () => {
     return `${window.location.origin}${url.startsWith('/') ? '' : '/'}${url}`;
   };
 
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      addToast('Link copied!', 'success');
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      addToast('Could not copy link', 'error');
+    }
+  };
+
   const canonicalUrl = `${window.location.origin}/article/${article.slug}`;
   const absoluteImage = getAbsoluteImageUrl(article.imageUrl);
   const schemaMarkup = {
@@ -115,6 +77,11 @@ const ArticlePage = () => {
     },
     url: canonicalUrl,
   };
+
+  // Split summary into sentences for the BBC-style "At a glance" key bullet points
+  const summaryBullets = article.summary
+    ? article.summary.split(/(?<=[.?!])\s+/).filter(Boolean)
+    : [];
 
   return (
     <>
@@ -143,52 +110,85 @@ const ArticlePage = () => {
         <div className="article-layout container">
           {/* Main article column */}
           <div className="article-main">
-            {/* Article header */}
-            <header className="article-header">
-              <ArticleMeta article={article} />
-              <h1 className="article-headline">{article.headline}</h1>
+            {/* BBC Style Article Header */}
+            <header className="article-header-bbc">
+              <h1 className="article-headline-bbc">{article.headline}</h1>
               {article.subheadline && (
-                <p className="article-subheadline">{article.subheadline}</p>
+                <p className="article-subheadline-bbc">{article.subheadline}</p>
               )}
-              <div className="article-byline">
-                <span>By {article.byline || 'InkWire Editorial Desk'}</span>
-                {article.publishedAt && (
-                  <span className="meta-dot" aria-hidden="true" />
-                )}
-                {article.publishedAt && (
-                  <time dateTime={article.publishedAt}>
-                    {format(new Date(article.publishedAt), 'MMMM d, yyyy')}
-                  </time>
+
+              {/* BBC Style Metabar */}
+              <div className="article-metabar-bbc">
+                <div className="metabar-left-bbc">
+                  {article.publishedAt && (
+                    <time className="article-time-bbc" dateTime={article.publishedAt}>
+                      {formatDistanceToNow(new Date(article.publishedAt), { addSuffix: true }).replace('about ', '')}
+                    </time>
+                  )}
+                </div>
+
+                <div className="metabar-right-bbc">
+                  <div className="bbc-action-buttons">
+                    <button className="bbc-action-btn share-trigger" onClick={copyLink} aria-label="Copy Link">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ marginRight: '6px' }}>
+                        <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+                        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
+                        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+                      </svg>
+                      {copied ? 'Copied' : 'Share'}
+                    </button>
+                    
+                    <button className="bbc-action-btn save-trigger" onClick={() => addToast('Article saved to bookmarks', 'success')} aria-label="Save Article">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ marginRight: '6px' }}>
+                        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+                      </svg>
+                      Save
+                    </button>
+
+                    <button className="bbc-action-btn google-trigger" onClick={() => window.open('https://news.google.com')} aria-label="Google News">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '6px', color: '#4285F4' }}>
+                        <path d="M12.24 10.285V13.4h6.887c-.275 1.565-1.88 4.604-6.887 4.604-4.33 0-7.859-3.578-7.859-8s3.53-8 7.859-8c2.46 0 4.105 1.025 5.047 1.926l2.427-2.334C18.155 2.185 15.427 1 12.24 1c-6.075 0-11 4.925-11 11s4.925 11 11 11c6.34 0 10.556-4.437 10.556-10.75 0-.724-.078-1.275-.173-1.825H12.24z"/>
+                      </svg>
+                      Add as preferred on Google
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Byline */}
+              <div className="article-byline-bbc">
+                <span className="byline-name-bbc">{article.byline || 'InkWire Editorial Desk'}</span>
+                {article.topic && (
+                  <span className="byline-role-bbc">
+                    InkWire {article.topic.charAt(0).toUpperCase() + article.topic.slice(1)} Editor
+                  </span>
                 )}
               </div>
-              <hr className="article-divider" />
             </header>
 
             {/* Article image */}
             {article.imageUrl && (
-              <figure className="article-figure">
+              <figure className="article-figure-bbc">
                 <img
                   src={article.imageUrl}
                   alt={article.headline}
-                  className="article-hero-image"
+                  className="article-hero-image-bbc"
                 />
                 {article.imageCredit && (
-                  <figcaption className="article-image-credit">{article.imageCredit}</figcaption>
+                  <figcaption className="article-image-credit-bbc">{article.imageCredit}</figcaption>
                 )}
               </figure>
             )}
 
-            {/* Quick AI Summary */}
-            {article.summary && (
-              <div className="quick-ai-summary-box">
-                <div className="summary-header">
-                  <span className="summary-icon">⚡</span>
-                  <span className="summary-title">Quick AI Summary</span>
-                  <span className="summary-badge">Key Takeaways</span>
-                </div>
-                <div className="summary-body">
-                  <p>{article.summary}</p>
-                </div>
+            {/* BBC-style "At a glance" takeaways */}
+            {summaryBullets.length > 0 && (
+              <div className="bbc-at-a-glance">
+                <h3 className="at-a-glance-title">At a glance</h3>
+                <ul className="at-a-glance-list">
+                  {summaryBullets.map((bullet, idx) => (
+                    <li key={idx} className="at-a-glance-item">{bullet.trim()}</li>
+                  ))}
+                </ul>
               </div>
             )}
 
@@ -202,9 +202,9 @@ const ArticlePage = () => {
 
             {/* Sources */}
             {article.sources && article.sources.length > 0 && (
-              <aside className="article-sources">
-                <h4 className="article-sources-heading">Sources</h4>
-                <ul className="article-sources-list">
+              <aside className="article-sources-bbc">
+                <h4 className="article-sources-heading-bbc">Sources</h4>
+                <ul className="article-sources-list-bbc">
                   {article.sources.map((source, i) => (
                     <li key={i}>
                       {source.url ? (
@@ -222,17 +222,14 @@ const ArticlePage = () => {
 
             {/* Tags */}
             {article.tags && article.tags.length > 0 && (
-              <div className="article-tags">
+              <div className="article-tags-bbc">
                 {article.tags.map((tag) => (
-                  <Link key={tag} to={`/search?q=${encodeURIComponent(tag)}`} className="article-tag">
+                  <Link key={tag} to={`/search?q=${encodeURIComponent(tag)}`} className="article-tag-bbc">
                     {tag}
                   </Link>
                 ))}
               </div>
             )}
-
-            {/* Share buttons */}
-            <ShareButtons article={article} />
           </div>
 
           {/* Sidebar — sticky ad on desktop */}

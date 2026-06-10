@@ -33,8 +33,8 @@ const DraftCard = ({ article, selected, onSelect, onAction }) => {
 
   const handleApprove = act(
     () => approveArticle(article._id),
-    `✅ "${article.headline.slice(0, 40)}…" approved`,
-    'Failed to approve'
+    `🚀 "${article.headline.slice(0, 40)}…" published instantly`,
+    'Failed to publish'
   );
 
   const handleReject = act(
@@ -115,7 +115,7 @@ const DraftCard = ({ article, selected, onSelect, onAction }) => {
             disabled={loading}
             id={`approve-${article._id}`}
           >
-            ✅ Approve
+            🚀 Publish
           </button>
           <a
             href={`/admin/editor/${article._id}`}
@@ -198,7 +198,7 @@ const ArticleQueue = () => {
     setBulkLoading(true);
     try {
       const result = await bulkApprove([...selected]);
-      addToast(`✅ ${result.count} articles approved`, 'success');
+      addToast(`🚀 ${result.count} articles published instantly`, 'success');
       setSelected(new Set());
       reload();
     } catch {
@@ -244,7 +244,7 @@ const ArticleQueue = () => {
           <div className="bulk-toolbar">
             <span className="bulk-count">{selected.size} selected</span>
             <button className="btn btn-success" onClick={handleBulkApprove} disabled={bulkLoading}>
-              ✅ Approve All Selected
+              🚀 Publish All Selected
             </button>
             <button className="btn btn-danger" onClick={handleBulkReject} disabled={bulkLoading}>
               ✕ Reject All Selected

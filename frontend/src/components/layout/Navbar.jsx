@@ -56,47 +56,73 @@ const Navbar = () => {
     <>
       <header className="navbar" role="banner">
         {/* Row 1: Top branding bar */}
+        {/* Row 1: Top branding bar */}
         <div className="navbar-top container">
-          {/* Left info box: Date display (visible on desktop) */}
+          {/* Left info box: Hamburger menu button + label (visible on desktop) */}
           <div className="navbar-top-left">
-            <span className="navbar-date">{formattedDate}</span>
+            <button
+              className={`navbar-hamburger-bbc ${mobileMenuOpen ? 'navbar-hamburger-bbc--open' : ''}`}
+              onClick={toggleMobileMenu}
+              aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={mobileMenuOpen}
+              id="navbar-hamburger-bbc"
+            >
+              {mobileMenuOpen ? (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              ) : (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <line x1="3" y1="6" x2="21" y2="6" />
+                  <line x1="3" y1="12" x2="21" y2="12" />
+                  <line x1="3" y1="18" x2="21" y2="18" />
+                </svg>
+              )}
+              <span className="hamburger-label">Menu</span>
+            </button>
           </div>
 
-          {/* Logo (Centered on desktop, styled like The Hindu with SVG Crest) */}
-          <Link to="/" className="navbar-logo" onClick={closeMobileMenu} aria-label="InkWire — Home">
-            <span className="logo-word">INK</span>
-            <img src="/crest.svg" className="logo-crest" alt="InkWire Crest" aria-hidden="true" />
-            <span className="logo-word">WIRE</span>
+          {/* Logo (Centered on desktop, styled like BBC with restored Elephant Crest) */}
+          <Link to="/" className="navbar-logo-bbc" onClick={closeMobileMenu} aria-label="InkWire — Home">
+            <div className="logo-blocks-bbc">
+              <span className="logo-block-bbc">I</span>
+              <span className="logo-block-bbc">N</span>
+              <span className="logo-block-bbc">K</span>
+            </div>
+            <img src="/crest.svg" className="logo-crest-bbc" alt="InkWire Elephant Crest" aria-hidden="true" />
+            <span className="logo-text-bbc">WIRE</span>
           </Link>
 
-          {/* Right actions */}
+          {/* Right actions (Register / Sign In + Search) */}
           <div className="navbar-top-right">
             {!searchOpen && (
               <button
-                className="navbar-icon-btn"
+                className="navbar-search-btn-bbc"
                 onClick={() => setSearchOpen(true)}
                 aria-label="Open search"
                 id="navbar-search-toggle"
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <circle cx="11" cy="11" r="8" />
                   <line x1="21" y1="21" x2="16.65" y2="16.65" />
                 </svg>
+                <span className="search-text-bbc">Search</span>
               </button>
             )}
+
+            {/* Mobile-only menu toggle (matches desktop but smaller) */}
             <button
-              className={`navbar-icon-btn navbar-hamburger ${mobileMenuOpen ? 'navbar-hamburger--open' : ''}`}
+              className={`navbar-hamburger-bbc mobile-only-toggle ${mobileMenuOpen ? 'navbar-hamburger-bbc--open' : ''}`}
               onClick={toggleMobileMenu}
               aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
-              aria-expanded={mobileMenuOpen}
-              id="navbar-hamburger"
+              id="navbar-hamburger-mobile"
             >
               {mobileMenuOpen ? (
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
                 </svg>
               ) : (
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" />
                 </svg>
               )}
@@ -108,6 +134,13 @@ const Navbar = () => {
         <div className="navbar-bottom">
           <div className="navbar-bottom-inner container">
             <nav className="navbar-links" aria-label="Topic navigation">
+              <NavLink
+                to="/"
+                className={({ isActive }) => `navbar-link ${isActive ? 'navbar-link--active' : ''}`}
+                style={{ '--topic-color': '#c00000' }}
+              >
+                Home
+              </NavLink>
               {TOPICS.map((topic) => (
                 <NavLink
                   key={topic.id}
@@ -126,6 +159,14 @@ const Navbar = () => {
         {mobileMenuOpen && (
           <div className="navbar-mobile-menu" aria-label="Mobile navigation">
             <nav className="navbar-mobile-nav">
+              <NavLink
+                to="/"
+                className="navbar-mobile-link"
+                onClick={closeMobileMenu}
+              >
+                <span className="navbar-mobile-dot" style={{ background: '#c00000' }} />
+                Home
+              </NavLink>
               {TOPICS.map((topic) => (
                 <NavLink
                   key={topic.id}

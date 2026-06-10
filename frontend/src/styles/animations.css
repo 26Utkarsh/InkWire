@@ -58,11 +58,13 @@
 /* === Utility classes === */
 
 .animate-fade-in-up {
-  animation: fadeInUp 0.4s ease forwards;
+  animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity;
 }
 
 .animate-fade-in {
   animation: fadeIn 0.3s ease forwards;
+  will-change: opacity;
 }
 
 .animate-spin {
