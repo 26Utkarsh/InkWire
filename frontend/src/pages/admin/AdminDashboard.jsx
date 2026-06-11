@@ -393,7 +393,29 @@ const AdminDashboard = () => {
                   </div>
 
                   <div className="form-group flex-2">
-                    <label htmlFor="custom-image-url" className="form-label">Custom Image URL (Optional)</label>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <label htmlFor="custom-image-url" className="form-label">Custom Image URL (Optional)</label>
+                      <label htmlFor="gallery-upload" className="gallery-upload-btn">
+                        📁 Choose from Gallery
+                        <input
+                          type="file"
+                          id="gallery-upload"
+                          accept="image/*"
+                          style={{ display: 'none' }}
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            const reader = new FileReader();
+                            reader.onload = (event) => {
+                              setCustomImageUrl(event.target.result);
+                              setCustomImageCredit('Uploaded from device');
+                              addToast('📁 Image loaded from gallery!', 'success');
+                            };
+                            reader.readAsDataURL(file);
+                          }}
+                        />
+                      </label>
+                    </div>
                     <input
                       type="text"
                       id="custom-image-url"
