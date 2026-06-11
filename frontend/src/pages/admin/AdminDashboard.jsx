@@ -102,6 +102,23 @@ const AdminDashboard = () => {
     }
   };
 
+  const handlePaste = (e) => {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    for (const item of items) {
+      if (item.type.indexOf('image') !== -1) {
+        const file = item.getAsFile();
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          setCustomImageUrl(event.target.result);
+          setCustomImageCredit('Pasted from clipboard');
+          addToast('📸 Image pasted from clipboard!', 'success');
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+  };
+
   const handleCustomGenerate = async (e) => {
     e.preventDefault();
     if (!customTopic.trim()) {
@@ -326,6 +343,7 @@ const AdminDashboard = () => {
                     placeholder="Describe the topic in detail (e.g. 'Rahul Gandhi visiting Andaman islands and showing us the risks of cutting down 1.5 crore trees and serious threat to coral reefs by the Great Nicobar project')..."
                     value={customTopic}
                     onChange={(e) => setCustomTopic(e.target.value)}
+                    onPaste={handlePaste}
                     rows="4"
                     required
                   />
@@ -377,13 +395,32 @@ const AdminDashboard = () => {
                   <div className="form-group flex-2">
                     <label htmlFor="custom-image-url" className="form-label">Custom Image URL (Optional)</label>
                     <input
-                      type="url"
+                      type="text"
                       id="custom-image-url"
                       className="form-control"
                       placeholder="https://images.unsplash.com/..."
                       value={customImageUrl}
                       onChange={(e) => setCustomImageUrl(e.target.value)}
                     />
+                    {customImageUrl && (
+                      <div className="pasted-image-preview-container">
+                        <img 
+                          src={customImageUrl} 
+                          alt="Preview" 
+                          className="pasted-image-preview" 
+                        />
+                        <button 
+                          type="button" 
+                          className="btn-remove-pasted-image"
+                          onClick={() => {
+                            setCustomImageUrl('');
+                            setCustomImageCredit('');
+                          }}
+                        >
+                          ✕ Remove Image
+                        </button>
+                      </div>
+                    )}
                   </div>
 
                   <div className="form-group flex-1">
