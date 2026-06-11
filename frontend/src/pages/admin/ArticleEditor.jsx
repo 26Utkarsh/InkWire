@@ -19,13 +19,13 @@ const QUILL_MODULES = {
   toolbar: [
     [{ header: [2, 3, false] }],
     ['bold', 'italic', 'underline'],
-    ['blockquote', 'link'],
+    ['blockquote', 'link', 'image'],
     [{ list: 'ordered' }, { list: 'bullet' }],
     ['clean'],
   ],
 };
 
-const QUILL_FORMATS = ['header', 'bold', 'italic', 'underline', 'blockquote', 'link', 'list', 'bullet'];
+const QUILL_FORMATS = ['header', 'bold', 'italic', 'underline', 'blockquote', 'link', 'list', 'bullet', 'image'];
 
 const ArticleEditor = () => {
   const { id } = useParams();

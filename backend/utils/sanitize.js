@@ -13,12 +13,14 @@ const ALLOWED_TAGS = [
   'blockquote',
   'a',
   'br',
+  'img',
 ];
 
 /** Allowed attributes per tag */
 const ALLOWED_ATTRIBUTES = {
   a: ['href', 'target', 'rel'],
   blockquote: ['cite'],
+  img: ['src', 'alt', 'class', 'style', 'width', 'height'],
 };
 
 /**
@@ -32,6 +34,10 @@ export const sanitizeArticleHTML = (html) => {
   return sanitizeHtml(html, {
     allowedTags: ALLOWED_TAGS,
     allowedAttributes: ALLOWED_ATTRIBUTES,
+    allowedSchemesByTag: {
+      img: ['http', 'https', 'data'],
+      a: ['http', 'https', 'ftp', 'mailto'],
+    },
     transformTags: {
       a: (tagName, attribs) => ({
         tagName,
