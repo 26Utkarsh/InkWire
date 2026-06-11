@@ -14,10 +14,15 @@ export const DB = {
 };
 
 export const AUTH = {
-  JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '8h',
-  BCRYPT_ROUNDS: 12,
-  MAX_LOGIN_ATTEMPTS: 5,
-  LOCKOUT_MINUTES: 15,
+  JWT_EXPIRES_IN:       process.env.JWT_EXPIRES_IN || '4h',
+  // 14 rounds = ~250ms hashing time on a modern server.
+  // Cost doubles every +1 round. 14 makes offline dictionary attacks ~16x slower than round 12.
+  BCRYPT_ROUNDS:        14,
+  // 3 wrong passwords before lockout — tight enough to stop brute-force,
+  // loose enough that a real admin won't be locked out accidentally.
+  MAX_LOGIN_ATTEMPTS:   3,
+  // 30-minute lockout (was 15). Enough time to make automated retries impractical.
+  LOCKOUT_MINUTES:      30,
 };
 
 export const ARTICLE = {

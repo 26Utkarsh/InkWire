@@ -1,6 +1,6 @@
 /**
  * @fileoverview Admin.js — Admin user model for InkWire.
- * Single admin user with login attempt tracking.
+ * SECURITY: bcrypt hashing, account lockout, full login history audit trail.
  */
 
 import mongoose from 'mongoose';
@@ -11,17 +11,31 @@ const { Schema } = mongoose;
 
 const adminSchema = new Schema(
   {
-    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-    passwordHash: { type: String, required: true },
+    email:         { type: String, required: true, unique: true, lowercase: true, trim: true },
+    passwordHash:  { type: String, required: true },
     loginAttempts: { type: Number, default: 0 },
-    lockedUntil: { type: Date, default: null },
-    lastLogin: { type: Date },
+    lockedUntil:   { type: Date, default: null },
+    lastLogin:     { type: Date },
+
+    /**
+     * Login history — last 10 attempts (successful and failed).
+     * Each entry records: IP address, success/fail, and timestamp.
+     * Used for intrusion detection — visible in admin dashboard.
+     */
+    loginHistory: [
+      {
+        ip:        { type: String },
+        success:   { type: Boolean },
+        at:        { type: Date, default: Date.now },
+        _id:       false,   // no need for sub-document IDs
+      }
+    ],
   },
   { timestamps: true }
 );
 
 /**
- * Hash password before saving
+ * Hash password before saving (only if modified)
  */
 adminSchema.pre('save', async function preSave() {
   if (!this.isModified('passwordHash')) return;
@@ -29,7 +43,7 @@ adminSchema.pre('save', async function preSave() {
 });
 
 /**
- * Verify a plain password against stored hash
+ * Verify a plain password against stored hash.
  * @param {string} plainPassword
  * @returns {Promise<boolean>}
  */
@@ -38,7 +52,7 @@ adminSchema.methods.verifyPassword = async function verifyPassword(plainPassword
 };
 
 /**
- * Check if account is currently locked
+ * Check if account is currently locked.
  * @returns {boolean}
  */
 adminSchema.methods.isLocked = function isLocked() {
@@ -46,7 +60,7 @@ adminSchema.methods.isLocked = function isLocked() {
 };
 
 /**
- * Increment login attempt counter — lock after max attempts
+ * Increment login attempt counter — lock after max attempts.
  * @returns {Promise<void>}
  */
 adminSchema.methods.incrementLoginAttempts = async function incrementLoginAttempts() {
@@ -59,14 +73,30 @@ adminSchema.methods.incrementLoginAttempts = async function incrementLoginAttemp
 };
 
 /**
- * Reset login attempts after successful login
+ * Reset login attempts after successful login.
  * @returns {Promise<void>}
  */
 adminSchema.methods.resetLoginAttempts = async function resetLoginAttempts() {
   this.loginAttempts = 0;
-  this.lockedUntil = null;
-  this.lastLogin = new Date();
+  this.lockedUntil  = null;
+  this.lastLogin    = new Date();
+  await this.save();
+};
+
+/**
+ * Record a login event (success or failure) in the audit history.
+ * Keeps only the last 10 entries to prevent unbounded document growth.
+ * @param {{ ip: string, success: boolean }} entry
+ * @returns {Promise<void>}
+ */
+adminSchema.methods.recordLoginAttempt = async function recordLoginAttempt({ ip, success }) {
+  this.loginHistory.unshift({ ip, success, at: new Date() });
+  // Keep only the most recent 10 records
+  if (this.loginHistory.length > 10) {
+    this.loginHistory = this.loginHistory.slice(0, 10);
+  }
   await this.save();
 };
 
 export const Admin = mongoose.model('Admin', adminSchema);
+
