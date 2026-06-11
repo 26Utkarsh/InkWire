@@ -31,6 +31,7 @@ const AdminDashboard = () => {
   const [customTopic, setCustomTopic] = useState('');
   const [customCategory, setCustomCategory] = useState('india');
   const [customImageUrl, setCustomImageUrl] = useState('');
+  const [customImageUrl2, setCustomImageUrl2] = useState('');
   const [customImageCredit, setCustomImageCredit] = useState('');
   const [generatingCustom, setGeneratingCustom] = useState(false);
 
@@ -132,11 +133,13 @@ const AdminDashboard = () => {
         prompt: customTopic,
         topic: customCategory,
         imageUrl: customImageUrl,
-        imageCredit: customImageCredit
+        imageCredit: customImageCredit,
+        imageUrl2: customImageUrl2
       });
       addToast('✨ Custom article generated successfully! Added to Review Queue.', 'success');
       setCustomTopic('');
       setCustomImageUrl('');
+      setCustomImageUrl2('');
       setCustomImageCredit('');
     } catch (err) {
       const errorMsg = err.response?.data?.message || 'Failed to generate custom article';
@@ -392,11 +395,12 @@ const AdminDashboard = () => {
                     </select>
                   </div>
 
-                  <div className="form-group flex-2">
+                  {/* Headline Image */}
+                  <div className="form-group flex-2" style={{ flex: 1, minWidth: '250px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <label htmlFor="custom-image-url" className="form-label">Custom Image URL (Optional)</label>
+                      <label htmlFor="custom-image-url" className="form-label">Main Image (Optional)</label>
                       <label htmlFor="gallery-upload" className="gallery-upload-btn">
-                        📁 Choose from Gallery
+                        📁 Choose main Image
                         <input
                           type="file"
                           id="gallery-upload"
@@ -409,7 +413,7 @@ const AdminDashboard = () => {
                             reader.onload = (event) => {
                               setCustomImageUrl(event.target.result);
                               setCustomImageCredit('Uploaded from device');
-                              addToast('📁 Image loaded from gallery!', 'success');
+                              addToast('📁 Main image loaded!', 'success');
                             };
                             reader.readAsDataURL(file);
                           }}
@@ -420,7 +424,7 @@ const AdminDashboard = () => {
                       type="text"
                       id="custom-image-url"
                       className="form-control"
-                      placeholder="https://images.unsplash.com/..."
+                      placeholder="Main image URL or paste here..."
                       value={customImageUrl}
                       onChange={(e) => setCustomImageUrl(e.target.value)}
                     />
@@ -438,6 +442,56 @@ const AdminDashboard = () => {
                             setCustomImageUrl('');
                             setCustomImageCredit('');
                           }}
+                        >
+                          ✕ Remove Image
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Second Image (Inline Body Image) */}
+                  <div className="form-group flex-2" style={{ flex: 1, minWidth: '250px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <label htmlFor="custom-image-url-2" className="form-label">Second Image (Optional)</label>
+                      <label htmlFor="gallery-upload-2" className="gallery-upload-btn">
+                        📁 Choose second Image
+                        <input
+                          type="file"
+                          id="gallery-upload-2"
+                          accept="image/*"
+                          style={{ display: 'none' }}
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            const reader = new FileReader();
+                            reader.onload = (event) => {
+                              setCustomImageUrl2(event.target.result);
+                              addToast('📁 Second image loaded!', 'success');
+                            };
+                            reader.readAsDataURL(file);
+                          }}
+                        />
+                      </label>
+                    </div>
+                    <input
+                      type="text"
+                      id="custom-image-url-2"
+                      className="form-control"
+                      placeholder="Second image URL or paste here..."
+                      value={customImageUrl2}
+                      onChange={(e) => setCustomImageUrl2(e.target.value)}
+                    />
+                    {customImageUrl2 && (
+                      <div className="pasted-image-preview-container">
+                        <img 
+                          src={customImageUrl2} 
+                          alt="Preview" 
+                          className="pasted-image-preview" 
+                        />
+                        <button 
+                          type="button" 
+                          className="btn-remove-pasted-image"
+                          onClick={() => setCustomImageUrl2('')}
                         >
                           ✕ Remove Image
                         </button>

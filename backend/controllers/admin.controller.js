@@ -333,7 +333,7 @@ export const getSubscribers = async (req, res) => {
 /** Generate a custom article based on AI prompt and input parameters */
 export const generateCustomArticle = async (req, res) => {
   try {
-    const { prompt, topic = 'india', imageUrl, imageCredit, slot } = req.body;
+    const { prompt, topic = 'india', imageUrl, imageCredit, imageUrl2, slot } = req.body;
 
     if (!prompt || typeof prompt !== 'string' || !prompt.trim()) {
       return res.status(400).json({ success: false, message: 'Prompt/Topic description is required' });
@@ -342,7 +342,7 @@ export const generateCustomArticle = async (req, res) => {
     logger.info(`[ADMIN] Custom article generation requested for topic: ${topic}`);
 
     // Generate the article contents using the AI service
-    const articleData = await writeCustomArticle(topic, prompt.trim());
+    const articleData = await writeCustomArticle(topic, prompt.trim(), imageUrl2);
 
     // Resolve the image url and credit: use user-provided or fallback to Unsplash
     let finalImageUrl = imageUrl;

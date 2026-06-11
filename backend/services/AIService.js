@@ -286,8 +286,13 @@ const fetchWikiContext = async (term) => {
  * @param {string} customPrompt - Custom topic/instructions
  * @returns {Promise<object>} Structured article data ready for DB
  */
-export const writeCustomArticle = async (topic, customPrompt) => {
+export const writeCustomArticle = async (topic, customPrompt, imageUrl2) => {
   let enhancedPrompt = customPrompt;
+  
+  if (imageUrl2) {
+    enhancedPrompt += `\n\n[INLINE IMAGE INSTRUCTIONS]\nWe have a second image representing this story. Please insert the following exact HTML tag in the middle of the generated HTML article body (e.g. between paragraph 3 and paragraph 4):\n<img src="${imageUrl2}" alt="Article Illustration" style="display: block; margin: 24px auto; max-width: 100%; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.05);" />\nMake sure to insert this tag exactly as written. Do not escape the characters or modify the tag.`;
+  }
+
   const wikiQuery = extractWikiQuery(customPrompt);
   
   if (wikiQuery) {
