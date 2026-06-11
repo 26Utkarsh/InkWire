@@ -290,7 +290,7 @@ export const writeCustomArticle = async (topic, customPrompt, imageUrl2) => {
   let enhancedPrompt = customPrompt;
   
   if (imageUrl2) {
-    enhancedPrompt += `\n\n[INLINE IMAGE INSTRUCTIONS]\nWe have a second image representing this story. Please insert the following exact HTML tag in the middle of the generated HTML article body (e.g. between paragraph 3 and paragraph 4):\n<img src="${imageUrl2}" alt="Article Illustration" style="display: block; margin: 24px auto; max-width: 100%; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.05);" />\nMake sure to insert this tag exactly as written. Do not escape the characters or modify the tag.`;
+    enhancedPrompt += `\n\n[INLINE IMAGE INSTRUCTIONS]\nWe have a second image representing this story. Please insert the following exact HTML tag in the middle of the generated HTML article body (e.g. between paragraph 3 and paragraph 4):\n<img src="[SECOND_IMAGE_PLACEHOLDER]" alt="Article Illustration" style="display: block; margin: 24px auto; max-width: 100%; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.05);" />\nMake sure to insert this tag exactly as written. Do not escape the characters or modify the tag.`;
   }
 
   const wikiQuery = extractWikiQuery(customPrompt);
@@ -360,10 +360,26 @@ export const writeCustomArticle = async (topic, customPrompt, imageUrl2) => {
 
   const parsed = parseArticleResponse(rawText);
 
+  let finalBody = parsed.body || '';
+  if (imageUrl2) {
+    if (finalBody.includes('[SECOND_IMAGE_PLACEHOLDER]')) {
+      finalBody = finalBody.replace(/\[SECOND_IMAGE_PLACEHOLDER\]/g, imageUrl2);
+    } else if (!finalBody.includes('<img src=')) {
+      // Fallback: If AI fails to insert placeholder, split by paragraphs and insert between 3 and 4, or append
+      const paragraphs = finalBody.split('</p>');
+      if (paragraphs.length > 4) {
+        paragraphs.splice(3, 0, `\n<img src="${imageUrl2}" alt="Article Illustration" style="display: block; margin: 24px auto; max-width: 100%; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.05);" />\n`);
+        finalBody = paragraphs.join('</p>');
+      } else {
+        finalBody += `\n\n<p style="text-align: center;"><img src="${imageUrl2}" alt="Article Illustration" style="display: block; margin: 24px auto; max-width: 100%; border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.05);" /></p>`;
+      }
+    }
+  }
+
   return {
     headline: parsed.headline || 'Custom AI Generated Article',
     subheadline: parsed.subheadline || '',
-    body: parsed.body || '',
+    body: finalBody,
     summary: parsed.summary || '',
     tags: Array.isArray(parsed.tags) ? parsed.tags : [],
     topic: parsed.topic || topic,

@@ -81,9 +81,9 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
-/** Parse JSON bodies with size limit (increased to 5mb to support pasted images in custom articles) */
-app.use(express.json({ limit: '5mb' }));
-app.use(express.urlencoded({ extended: true, limit: '5mb' }));
+/** Parse JSON bodies with size limit (increased to 50mb to support multiple high-res mobile gallery uploads) */
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 /** Parse cookies — required for HttpOnly JWT cookie reading */
 app.use(cookieParser());

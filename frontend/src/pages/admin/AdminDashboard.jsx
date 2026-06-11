@@ -22,6 +22,41 @@ const StatCard = ({ icon, label, value, sublabel }) => (
   </div>
 );
 
+/** Compress raw image files client-side using HTML5 Canvas to prevent massive payload sizes */
+const compressImage = (file, callback) => {
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      let width = img.width;
+      let height = img.height;
+      const maxDim = 1200;
+
+      if (width > maxDim || height > maxDim) {
+        if (width > height) {
+          height = Math.round((height * maxDim) / width);
+          width = maxDim;
+        } else {
+          width = Math.round((width * maxDim) / height);
+          height = maxDim;
+        }
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+      
+      // Convert to JPEG with 0.8 quality factor (reduces file sizes by ~90%+)
+      const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+      callback(compressedDataUrl);
+    };
+    img.src = event.target.result;
+  };
+  reader.readAsDataURL(file);
+};
+
 const AdminDashboard = () => {
   const { stats, loading } = useAdminStats();
   const addToast = useAppStore((s) => s.addToast);
@@ -109,13 +144,11 @@ const AdminDashboard = () => {
     for (const item of items) {
       if (item.type.indexOf('image') !== -1) {
         const file = item.getAsFile();
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          setCustomImageUrl(event.target.result);
+        compressImage(file, (compressedDataUrl) => {
+          setCustomImageUrl(compressedDataUrl);
           setCustomImageCredit('Pasted from clipboard');
-          addToast('📸 Image pasted from clipboard!', 'success');
-        };
-        reader.readAsDataURL(file);
+          addToast('📸 Image pasted and compressed!', 'success');
+        });
       }
     }
   };
@@ -410,13 +443,11 @@ const AdminDashboard = () => {
                         onChange={(e) => {
                           const file = e.target.files?.[0];
                           if (!file) return;
-                          const reader = new FileReader();
-                          reader.onload = (event) => {
-                            setCustomImageUrl(event.target.result);
+                          compressImage(file, (compressedDataUrl) => {
+                            setCustomImageUrl(compressedDataUrl);
                             setCustomImageCredit('Uploaded from device');
-                            addToast('📁 Main image loaded!', 'success');
-                          };
-                          reader.readAsDataURL(file);
+                            addToast('📁 Main image loaded & compressed!', 'success');
+                          });
                         }}
                       />
                     </div>
@@ -464,12 +495,10 @@ const AdminDashboard = () => {
                         onChange={(e) => {
                           const file = e.target.files?.[0];
                           if (!file) return;
-                          const reader = new FileReader();
-                          reader.onload = (event) => {
-                            setCustomImageUrl2(event.target.result);
-                            addToast('📁 Second image loaded!', 'success');
-                          };
-                          reader.readAsDataURL(file);
+                          compressImage(file, (compressedDataUrl) => {
+                            setCustomImageUrl2(compressedDataUrl);
+                            addToast('📁 Second image loaded & compressed!', 'success');
+                          });
                         }}
                       />
                     </div>
