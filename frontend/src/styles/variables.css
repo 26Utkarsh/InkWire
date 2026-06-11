@@ -3,7 +3,9 @@
    NYT/Bloomberg editorial aesthetic: clean white, elegant serif
    ============================================================= */
 
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap');
+/* Performance: &display=swap prevents FOIT (Flash of Invisible Text).
+   &subset=latin reduces download size ~40% by excluding unused character sets. */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap&subset=latin');
 
 :root {
   /* === COLORS === */

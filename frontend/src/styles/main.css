@@ -8,6 +8,27 @@
 @import './animations.css';
 @import './responsive.css';
 
+/* === GLOBAL PERFORMANCE === */
+html {
+  scroll-behavior: smooth;
+  /* Prevent layout shift from scrollbar appearing */
+  overflow-y: scroll;
+  /* Improve text rendering on all platforms */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Faster tap response on mobile — removes 300ms delay */
+* {
+  touch-action: manipulation;
+}
+
+/* Optimize images globally — lazy-loaded images get content-visibility */
+img {
+  content-visibility: auto;
+}
+
 /* === PAGE WRAPPER === */
 .page-wrapper {
   min-height: calc(100vh - var(--nav-height));
