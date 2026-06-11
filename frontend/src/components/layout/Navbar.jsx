@@ -13,6 +13,8 @@ const Navbar = () => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const { mobileMenuOpen, toggleMobileMenu, closeMobileMenu } = useAppStore();
+  const bookmarks = useAppStore((s) => s.bookmarks);
+  const savedCount = bookmarks.length;
   const navigate = useNavigate();
 
   /** Close modal on Escape key */
@@ -151,6 +153,20 @@ const Navbar = () => {
                   {topic.label}
                 </NavLink>
               ))}
+              <NavLink
+                to="/saved"
+                className={({ isActive }) => `navbar-link navbar-link--saved ${isActive ? 'navbar-link--active' : ''}`}
+                style={{ '--topic-color': '#b00808' }}
+                aria-label={`Saved articles${savedCount > 0 ? ` — ${savedCount} saved` : ''}`}
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill={savedCount > 0 ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="navbar-bookmark-icon">
+                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+                </svg>
+                Saved
+                {savedCount > 0 && (
+                  <span className="navbar-saved-badge" aria-hidden="true">{savedCount}</span>
+                )}
+              </NavLink>
             </nav>
           </div>
         </div>
@@ -178,6 +194,19 @@ const Navbar = () => {
                   {topic.label}
                 </NavLink>
               ))}
+              <NavLink
+                to="/saved"
+                className="navbar-mobile-link navbar-mobile-link--saved"
+                onClick={closeMobileMenu}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill={savedCount > 0 ? '#b00808' : 'none'} stroke={savedCount > 0 ? '#b00808' : 'currentColor'} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+                </svg>
+                Saved Articles
+                {savedCount > 0 && (
+                  <span className="navbar-mobile-saved-badge">{savedCount}</span>
+                )}
+              </NavLink>
             </nav>
             <form className="navbar-mobile-search" onSubmit={handleSearch}>
               <input

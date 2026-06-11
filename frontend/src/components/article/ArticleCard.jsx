@@ -5,6 +5,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import ArticleMeta from './ArticleMeta.jsx';
+import BookmarkButton from '../ui/BookmarkButton.jsx';
 import { makeImageErrorHandler } from '../../utils/imageUtils.js';
 import './ArticleCard.css';
 
@@ -25,6 +26,7 @@ const ArticleCard = ({ article }) => (
             loading="lazy"
             onError={makeImageErrorHandler(article.topic, article.slug)}
           />
+          <BookmarkButton article={article} variant="icon" className="bookmark-btn--card-overlay" />
         </div>
       </Link>
     )}

@@ -10,6 +10,7 @@ import { format, formatDistanceToNow } from 'date-fns';
 import { useQuery } from '../hooks/useArticleDetail.js';
 import ArticleBody from '../components/article/ArticleBody.jsx';
 import AdSlot from '../components/ui/AdSlot.jsx';
+import BookmarkButton from '../components/ui/BookmarkButton.jsx';
 import NewsletterForm from '../components/ui/NewsletterForm.jsx';
 import useAppStore from '../store/useAppStore.js';
 import './ArticlePage.css';
@@ -138,12 +139,7 @@ const ArticlePage = () => {
                       {copied ? 'Copied' : 'Share'}
                     </button>
                     
-                    <button className="bbc-action-btn save-trigger" onClick={() => addToast('Article saved to bookmarks', 'success')} aria-label="Save Article">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ marginRight: '6px' }}>
-                        <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
-                      </svg>
-                      Save
-                    </button>
+                    <BookmarkButton article={article} variant="pill" />
 
                     <button className="bbc-action-btn google-trigger" onClick={() => window.open('https://news.google.com')} aria-label="Google News">
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '6px', color: '#4285F4' }}>

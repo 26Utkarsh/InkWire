@@ -8,11 +8,31 @@
 import { create } from 'zustand';
 import { api } from '../config/api.js';
 
+/** Load bookmarks from localStorage on startup */
+const loadBookmarks = () => {
+  try {
+    const stored = localStorage.getItem('inkwire_bookmarks');
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+};
+
+/** Persist bookmarks to localStorage */
+const saveBookmarks = (bookmarks) => {
+  try {
+    localStorage.setItem('inkwire_bookmarks', JSON.stringify(bookmarks));
+  } catch { /* quota exceeded — silently fail */ }
+};
+
 const useAppStore = create((set, get) => ({
   // === AUTH ===
   isAuthenticated: false,
   adminEmail: null,
   checkingAuth: true,
+
+  // === BOOKMARKS ===
+  bookmarks: loadBookmarks(),
 
   /**
    * Mark session as authenticated (called after login success)
@@ -33,6 +53,44 @@ const useAppStore = create((set, get) => ({
     } finally {
       set({ isAuthenticated: false, adminEmail: null });
     }
+  },
+
+  /**
+   * Toggle bookmark for an article. Saves minimal data needed to render the saved page.
+   * @param {object} article — must have: _id, slug, headline, summary, imageUrl, topic, publishedAt
+   */
+  toggleBookmark: (article) => {
+    const current = get().bookmarks;
+    const exists = current.some((b) => b._id === article._id);
+    const next = exists
+      ? current.filter((b) => b._id !== article._id)
+      : [
+          {
+            _id: article._id,
+            slug: article.slug,
+            headline: article.headline,
+            summary: article.summary,
+            imageUrl: article.imageUrl,
+            topic: article.topic,
+            publishedAt: article.publishedAt,
+            savedAt: new Date().toISOString(),
+          },
+          ...current,
+        ];
+    saveBookmarks(next);
+    set({ bookmarks: next });
+  },
+
+  /** Check if an article is bookmarked by id */
+  isBookmarked: (articleId) => get().bookmarks.some((b) => b._id === articleId),
+
+  /** Total number of saved articles */
+  bookmarkCount: () => get().bookmarks.length,
+
+  /** Remove all bookmarks */
+  clearBookmarks: () => {
+    saveBookmarks([]);
+    set({ bookmarks: [] });
   },
 
   /**

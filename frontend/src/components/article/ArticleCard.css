@@ -23,6 +23,7 @@
 }
 
 .article-card-image-wrap {
+  position: relative;  /* allows the bookmark overlay to be positioned inside */
   overflow: hidden;
   border-radius: var(--radius-md);
   aspect-ratio: 16 / 9;

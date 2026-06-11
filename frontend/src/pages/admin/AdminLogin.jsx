@@ -3,7 +3,7 @@
  */
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { api } from '../../config/api.js';
 import useAppStore from '../../store/useAppStore.js';
@@ -19,8 +19,7 @@ const AdminLogin = () => {
   const navigate = useNavigate();
 
   if (isAuthenticated) {
-    navigate('/admin/dashboard');
-    return null;
+    return <Navigate to="/admin/dashboard" replace />;
   }
 
   /**

@@ -1,0 +1,108 @@
+/* =============================================================
+   BookmarkButton.css — Save/Bookmark toggle button styles
+   ============================================================= */
+
+.bookmark-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  padding: 6px 8px;
+  border-radius: var(--radius-md);
+  transition: color var(--transition-fast), background var(--transition-fast), transform var(--transition-fast);
+  -webkit-tap-highlight-color: transparent;
+  line-height: 1;
+}
+
+.bookmark-btn:hover {
+  color: var(--color-text-primary);
+  background: var(--color-bg-secondary);
+}
+
+/* Saved (filled) state */
+.bookmark-btn--saved {
+  color: #b00808;
+}
+
+.bookmark-btn--saved:hover {
+  color: #8a0000;
+  background: #fff0f0;
+}
+
+/* Pop animation when bookmarked */
+.bookmark-btn--saved .bookmark-btn-icon {
+  animation: bookmark-pop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes bookmark-pop {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
+
+/* ── Pill variant (icon + label) ── */
+.bookmark-btn--pill {
+  border: 1px solid var(--color-border-strong);
+  padding: 6px 14px;
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #222222;
+  background: #ffffff;
+}
+
+.bookmark-btn--pill:hover {
+  background: var(--color-bg-secondary);
+  border-color: #999;
+}
+
+.bookmark-btn--pill.bookmark-btn--saved {
+  border-color: #b00808;
+  background: #fff5f5;
+  color: #b00808;
+}
+
+.bookmark-btn--pill.bookmark-btn--saved:hover {
+  background: #ffe8e8;
+}
+
+.bookmark-btn-label {
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+/* ── Card variant (absolute overlay) ── */
+.bookmark-btn--card-overlay {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(4px);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+  justify-content: center;
+  padding: 0;
+  opacity: 0;
+  transform: scale(0.85);
+  transition: opacity var(--transition-fast), transform var(--transition-fast), color var(--transition-fast), background var(--transition-fast);
+}
+
+/* Show on card hover */
+.article-card:hover .bookmark-btn--card-overlay,
+.article-card:focus-within .bookmark-btn--card-overlay {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Always visible when saved */
+.bookmark-btn--card-overlay.bookmark-btn--saved {
+  opacity: 1;
+  transform: scale(1);
+  background: rgba(255, 255, 255, 0.95);
+}
