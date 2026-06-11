@@ -42,6 +42,10 @@ graph TD
 - **LLM Editorial Engine** — Google Gemini 2.5 Flash (primary) + Groq LLaMA 70B (fallback) write fully structured, long-form, BBC-style articles
 - **Wikipedia Import Mode** — Admin can search and rewrite any Wikipedia article into a news draft via AI
 - **Custom Article Generator** — Admin can write a topic prompt and have the AI generate a full article draft on demand
+- **Direct Clipboard & Gallery Uploads** — Paste images (`Ctrl+V`) directly into the prompt box or select them from your device's native gallery (fully responsive on both desktop and mobile viewports)
+- **Multi-Image Custom Drafts** — Provide a Main featured image plus a Second inline image, which the AI dynamically inserts in the middle of the article body with custom styled styling
+- **Quill Rich-Text Inline Image Support** — Edit drafts inside the Review Queue and drop multiple images directly into the body at the cursor position (saved as base64 URLs)
+- **Smart Image Credit Filtering** — Automatically hides system attribution strings (like `"Uploaded from device"` or `"Pasted from clipboard"`) on public pages while preserving custom source names (e.g., `"Reuters"`)
 - **Live News Suggestions** — Dashboard shows curated trending headlines from live feeds as one-click generation prompts
 
 ### 🎨 Frontend (React 18 + Vite 5)
