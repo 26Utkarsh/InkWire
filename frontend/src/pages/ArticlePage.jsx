@@ -170,7 +170,9 @@ const ArticlePage = () => {
                   alt={article.headline}
                   className="article-hero-image-bbc"
                 />
-                {article.imageCredit && (
+                {article.imageCredit && 
+                 article.imageCredit !== 'Uploaded from device' && 
+                 article.imageCredit !== 'Pasted from clipboard' && (
                   <figcaption className="article-image-credit-bbc">{article.imageCredit}</figcaption>
                 )}
               </figure>
