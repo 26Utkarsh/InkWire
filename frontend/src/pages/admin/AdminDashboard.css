@@ -1122,4 +1122,33 @@ section:nth-of-type(2) .stats-grid .stat-card:nth-child(3):hover { background: l
   transform: translateY(-1px);
 }
 
+.image-input-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-2);
+}
+
+.visually-hidden-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+  opacity: 0;
+}
+
+@media (max-width: 767px) {
+  .gallery-upload-btn {
+    padding: 10px 16px;
+    font-size: 0.875rem;
+    min-height: 40px;
+  }
+}
+
 

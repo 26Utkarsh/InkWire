@@ -397,28 +397,28 @@ const AdminDashboard = () => {
 
                   {/* Headline Image */}
                   <div className="form-group flex-2" style={{ flex: 1, minWidth: '250px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div className="image-input-header">
                       <label htmlFor="custom-image-url" className="form-label">Main Image (Optional)</label>
                       <label htmlFor="gallery-upload" className="gallery-upload-btn">
                         📁 Choose main Image
-                        <input
-                          type="file"
-                          id="gallery-upload"
-                          accept="image/*"
-                          style={{ display: 'none' }}
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (!file) return;
-                            const reader = new FileReader();
-                            reader.onload = (event) => {
-                              setCustomImageUrl(event.target.result);
-                              setCustomImageCredit('Uploaded from device');
-                              addToast('📁 Main image loaded!', 'success');
-                            };
-                            reader.readAsDataURL(file);
-                          }}
-                        />
                       </label>
+                      <input
+                        type="file"
+                        id="gallery-upload"
+                        accept="image/*"
+                        className="visually-hidden-input"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          const reader = new FileReader();
+                          reader.onload = (event) => {
+                            setCustomImageUrl(event.target.result);
+                            setCustomImageCredit('Uploaded from device');
+                            addToast('📁 Main image loaded!', 'success');
+                          };
+                          reader.readAsDataURL(file);
+                        }}
+                      />
                     </div>
                     <input
                       type="text"
@@ -451,27 +451,27 @@ const AdminDashboard = () => {
 
                   {/* Second Image (Inline Body Image) */}
                   <div className="form-group flex-2" style={{ flex: 1, minWidth: '250px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div className="image-input-header">
                       <label htmlFor="custom-image-url-2" className="form-label">Second Image (Optional)</label>
                       <label htmlFor="gallery-upload-2" className="gallery-upload-btn">
                         📁 Choose second Image
-                        <input
-                          type="file"
-                          id="gallery-upload-2"
-                          accept="image/*"
-                          style={{ display: 'none' }}
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (!file) return;
-                            const reader = new FileReader();
-                            reader.onload = (event) => {
-                              setCustomImageUrl2(event.target.result);
-                              addToast('📁 Second image loaded!', 'success');
-                            };
-                            reader.readAsDataURL(file);
-                          }}
-                        />
                       </label>
+                      <input
+                        type="file"
+                        id="gallery-upload-2"
+                        accept="image/*"
+                        className="visually-hidden-input"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          const reader = new FileReader();
+                          reader.onload = (event) => {
+                            setCustomImageUrl2(event.target.result);
+                            addToast('📁 Second image loaded!', 'success');
+                          };
+                          reader.readAsDataURL(file);
+                        }}
+                      />
                     </div>
                     <input
                       type="text"
