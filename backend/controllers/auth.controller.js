@@ -39,13 +39,14 @@ const COOKIE_OPTIONS = {
 };
 
 /**
- * A static bcrypt hash of a dummy password.
- * Used to ensure timing parity between "email not found" and "wrong password" paths.
- * Without this, an attacker can distinguish valid vs invalid emails by measuring
- * response time — valid emails run bcrypt (~250ms), invalid ones return instantly.
- * Pre-generated once at module load so it doesn't slow down startup.
+ * A valid pre-generated bcrypt hash used purely for timing parity.
+ * When an unknown email is submitted, we compare against this dummy hash
+ * so the response time matches the real bcrypt path (~250ms at rounds=14).
+ *
+ * This hash was generated with: bcrypt.hash('timing-dummy-inkwire', 14)
+ * It is intentionally public — it protects timing, not any real password.
  */
-const DUMMY_HASH = '$2a$14$dummyhashfortimingprotection.abcdefghijklmnopqrstuvwxy';
+const DUMMY_HASH = '$2a$14$nwUAKjYkB6e5Q8KaBcYfze75aG9TamS8dWmAveDKN4W8k9mJeJpIW';
 
 /**
  * Admin login — verify credentials and issue HttpOnly JWT cookie.
@@ -82,16 +83,26 @@ export const login = async (req, res) => {
 
     const isValid = await admin.verifyPassword(password);
     if (!isValid) {
-      await admin.incrementLoginAttempts();
-      // Record failed attempt in login history
-      await admin.recordLoginAttempt({ ip: clientIP, success: false });
-      logger.warn(`[AUTH] Failed login for: ${email} from IP: ${clientIP} (attempt ${admin.loginAttempts + 1})`);
+      // Increment attempts and record history in one save — avoids double-save conflict
+      admin.loginAttempts += 1;
+      if (admin.loginAttempts >= AUTH.MAX_LOGIN_ATTEMPTS) {
+        admin.lockedUntil = new Date(Date.now() + AUTH.LOCKOUT_MINUTES * 60 * 1000);
+        admin.loginAttempts = 0;
+      }
+      admin.loginHistory.unshift({ ip: clientIP, success: false, at: new Date() });
+      if (admin.loginHistory.length > 10) admin.loginHistory = admin.loginHistory.slice(0, 10);
+      await admin.save();
+      logger.warn(`[AUTH] Failed login for: ${email} from IP: ${clientIP}`);
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
 
-    // Success — reset lockout counters and record the event
-    await admin.resetLoginAttempts();
-    await admin.recordLoginAttempt({ ip: clientIP, success: true });
+    // Success — reset lockout counters and record the event in one save
+    admin.loginAttempts = 0;
+    admin.lockedUntil  = null;
+    admin.lastLogin    = new Date();
+    admin.loginHistory.unshift({ ip: clientIP, success: true, at: new Date() });
+    if (admin.loginHistory.length > 10) admin.loginHistory = admin.loginHistory.slice(0, 10);
+    await admin.save();
 
     const token = jwt.sign(
       { id: admin._id.toString(), email: admin.email },
