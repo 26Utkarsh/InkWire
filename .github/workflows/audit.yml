@@ -22,9 +22,11 @@ jobs:
       - name: Audit Backend
         run: |
           cd backend
+          npm audit fix
           npm audit --audit-level=high
 
       - name: Audit Frontend
         run: |
           cd frontend
+          npm audit fix
           npm audit --audit-level=high
